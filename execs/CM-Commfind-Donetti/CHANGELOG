@@ -1,0 +1,7 @@
+8 apr 2005  v 0.2
+	* added check for disconnected graphs (and reordered checks in main())
+	* fixed some memory leaks
+	* added example network
+
+6 apr 2005   v 0.1
+	* first version released

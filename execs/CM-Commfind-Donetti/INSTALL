@@ -1,0 +1,15 @@
+In the unpacking directory just do:
+
+   make
+
+The program depends on the ARPACK library which, in turn, depends on
+the LAPACK and BLAS libraries. If linking fails, find out the correct
+names of shared libraries and their path, then edit the first lines of
+the Makefile accordingly.
+
+The executable will be called commfind and will be placed in the
+current directory. It can be executed without any intallation.
+
+The program has only been tested on the author's GNU/Linux system; it
+should build and run on other systems, but it may require some
+changes.

@@ -1,0 +1,16 @@
+FASTCOMMUNITY_INFERENCE_ALGORITHM
+START-----:	Fri Feb 28 10:43:59 2014
+---FILES--------
+DIRECTORY-:	
+F_IN------:	wkarate.wpairs
+F_JOINS---:	wkarate-fc_firstRun.joins
+F_INFO----:	wkarate-fc_firstRun.info
+---NET_STATS----
+MAXID-----:	34
+NUMNODES--:	34
+NUMEDGES--:	78
+TOTALWT---:	231
+---MODULARITY---
+MAXQ------:	0.434521
+STEP------:	31
+EXIT------:	Fri Feb 28 10:43:59 2014

@@ -1,0 +1,1 @@
+The software is provided "as is" and is free for academic and non-profit use. For commercial use and licensing please contact Martin Rosvall, martin.rosvall@physics.umu.se. Please cite in any publication: Martin Rosvall and Carl T. Bergstrom, Maps of information flow reveal community structure in complex networks, PNAS 105, 1118 (2008).

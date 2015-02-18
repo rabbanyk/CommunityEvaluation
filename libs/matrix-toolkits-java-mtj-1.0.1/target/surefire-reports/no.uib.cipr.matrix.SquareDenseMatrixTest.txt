@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: no.uib.cipr.matrix.SquareDenseMatrixTest
+-------------------------------------------------------------------------------
+Tests run: 61, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.277 sec

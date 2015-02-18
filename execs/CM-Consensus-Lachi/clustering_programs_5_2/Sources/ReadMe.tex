@@ -1,0 +1,267 @@
+\documentclass[11pt]{article}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage[usenames,dvipsnames]{color}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{User's guide}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+%\section{}
+%\subsection{}
+
+Thanks for downloading this package. You just got a selected collection of clustering algorithms, a visualization method and the consensus clustering algorithm.
+
+
+\section{Compiling}
+
+The program comes along with a file called {\tt compile.sh}.
+
+Please type:
+
+{ \tt{./compile.sh} }
+
+from a Unix (MAC) terminal. If you are using Windows, you could still run
+the program by installing MinGW
+(Minimalist GNU for Windows, {\tt http://www.mingw.org/}).
+If you see something like { \tt ./compile.sh: Permission denied}, please type:
+
+{\tt{chmod 744 compile.sh} }
+
+which makes the script executable and try again with:
+
+{\tt ./compile.sh}. 
+
+
+After a short while, you will see a new folder, {\tt bin}. Please do not move it!  The python script  {\tt select.py} will call the binary files located in {\tt bin} , and everything will work fine as long as   {\tt select.py, methods.py} and  {\tt bin} will be in the same folder as they are now.
+
+
+
+\section{Inputs}
+
+
+Let's go ahead and type:
+
+
+{\tt python select.py}
+
+There are different arguments that you need to provide.  \color{blue} Blue flags are optionals, \color{red} red ones are needed.
+
+ \color{black}
+
+\begin{itemize}
+  \item  \color{red} { \tt -n} [network file]   
+   
+ \color{black}  [network file] should be in the edge list format, where every edge is in a different row, as:
+  
+  \textbf{node1 node2} 
+  
+  If the network is weighted:
+  
+  \textbf{node1 node2 $w_{12}$}
+  
+  node ids should be non negative integers, but they don't have to be consecutive and can start from whatever number. Weights should be positive.
+  For directed network  ``\textbf{node1 node2}" means \textbf{node1} links to \textbf{node2}. For undirected, the order does not matter and links do not need to be repeated. 
+
+  
+  \item   \color{red}  {\tt -p} [program number] 
+  \color{black}  
+ Select an algorithm from the list which also appears when you type 
+
+ {\tt python select.py} 
+
+   0: oslom undirected   
+   
+   1:  oslom directed
+   
+   2: infomap undirected
+   
+   3: infomap directed
+   
+   4: louvain
+   
+   5: label propagation method
+   
+   6: hierarchical infomap undirected
+   
+   7: hierarchical infomap directed
+
+   8: modularity optimization (simulated annealing zero temperature)
+
+  
+  \item   \color{red}  {\tt -f} [folder] 
+  \color{black}  
+  folder is a directory where all the results and some temporary files will be written. If the folder already exists, the script will not run, please remove the folder beforehand.  
+  
+  
+  \item   \color{red}  { \tt -c} [consensus runs] 
+  \color{black}
+  This sets the number of partitions for the consensus algorithm. If you set it to 1, the consensus algorithm is skipped.
+  
+  
+  
+  \item   \color{blue}  {\tt -l}  [label file] 
+    \color{black} 
+  label file is used just for the visualizations. It provides the names of the nodes (strings). The format is
+  
+  
+   \textbf{``name of node1'' node1}
+   
+   where  \textbf{node1} is an integer (the id of node1 in the network file). The use of `` " is recommended although the program should be flexible enough to figure out what you meant anyway.
+   
+  \color{black} 
+  
+  
+   
+  \item   \color{blue}  {\tt -t} [threshold]
+  \color{black}  threshold is a float number for pruning the consensus matrix. Default value is 0.5.
+
+
+
+  \item   \color{blue}  {\tt -slices} [slice\_file]
+  \color{black} This option is to find a consensus from partitions computed from different networks. For instance, if you have temporal networks $G_1, G_2, G_3, G_4 \dots$, and you want to find a median partition for $G_1, G_2, G_3$, {\tt slice\_file} should look like:
+  
+  {\tt
+  path\_to\_file\_G\_1
+  
+  path\_to\_file\_G\_2
+  
+  path\_to\_file\_G\_3
+  
+  }
+  
+The program will collect \color{red}  [consensus runs]  \color{black} partitions for each slice and find the consensus among all these partitions. The last network in {\tt slice\_file} will be used for the visualization in the folder {\tt results\_consensus}. Please try the example:
+
+{ \tt 
+
+python select.py -slices datasets/slice\_file -p 4 -f slice\_test -c 5
+
+}
+  
+  \end{itemize}
+
+
+  
+
+  
+
+\section{Outputs}
+
+
+The results will be in the folder name you specify.
+
+Together with some temporary files you can discard, you will see different folders as {\tt results\_1, results\_2, results\_3 \dots}, one for each run (the number depends on how many runs you set) and  {\tt results\_consensus}.
+Each folder will contain files like {\tt tp, tp1 \dots} which reports the partition  (each row is a different module) for the different hierarchical levels,  {\tt tp} is the bottom level.
+ {\tt cvis\_0.gdf, cvis\_1.gdf \dots } are files which can be loaded by gephi: {\tt cvis\_0.gdf} is the most coarse grained while the original network is in the file with the the highest index.
+
+
+\textbf{ \color{red}NB.  \color{black} If you are running the consensus method with a hierarchical method, the consensus matrix will be constructed only for the bottom level partition. For instance, {\tt results\_consensus/tp1} is computed from the consensus matrix of the bottom level partitions  {\tt results\_/tp, results\_2/tp}, and not from {\tt results\_/tp1, results\_2/tp1}. }
+
+\section{Skipping {\tt select.py}}
+
+You can run the bin files directly. This is faster if you are just interested in those or you want to specify more parameters. Run the algorithm you like without arguments to get instructions.
+
+
+
+\section{References}
+
+
+If you used the consensus algorithm for your research, please cite this paper:
+
+
+A. Lancichinetti, S Fortunato
+
+\textit{Consensus clustering in complex networks}
+
+Scientific Reports 2, 336 doi:10.1038/srep00336 (2012)
+
+\vskip0.3cm
+
+\noindent In addition, you should cite the proper reference for each method you used:
+
+
+    \textbf{ Oslom}
+
+ A. Lancichinetti, F. Radicchi, J.J. Ramasco and S. Fortunato
+\textit{Finding statistically significant communities in networks}
+PloS One 6, e18961 (2011)
+   
+   
+  \textbf {Infomap }
+   
+ Rosvall, M. and Bergstrom, C. T.
+ \textit{ Maps of random walks on complex networks reveal community structure. }
+  Proc. Natl. Acad. Sci. USA 105, 1118Ð1123 (2008).   
+  
+  
+   \textbf { Louvain}
+  
+  V.D. Blondel, J.-L. Guillaume, R. Lambiotte and E. Lefebvre 
+    \textit{ Fast unfolding of community hierarchies in large networks. }
+   J. Stat. Mech. 2008 (10): P10008
+  
+   
+     \textbf {Label Propagation Method}
+   
+   Raghavan, U. N., Albert, R. and Kumara, S. 
+   \textit{ Near linear time algorithm to detect community structures in large-scale networks.}
+    Phys. Rev. E 76, 036106 (2007).
+   
+    \textbf { Hierarchical Infomap }
+   
+   
+Martin Rosvall and Carl T. Bergstrom 
+ \textit{Multilevel compression of random walks on networks reveals hierarchical organization in large integrated systems.}
+PLoS ONE 6(4): e18209 (2011). 
+
+
+      \textbf {Modularity Optimization (Simulated Annealing)}
+    
+    Sales-Pardo, M., Guimerˆ, R., Moreira, A. A. and  Amaral, L. A. N
+     \textit{ Extracting the hierarchical organization of complex systems.}     
+      Proc. Natl. Acad. Sci. USA 104, 15224Ð15229 (2007).
+
+
+
+
+\section{Licence, Credits and Contacts}
+
+
+All the implementations are Andrea Lancichinetti's except to Infomap and Hierarchical Infomap which are Martin Rosvall's  and can be also found from:
+
+{\tt http://www.tp.umu.se/$\sim$rosvall/code.html}
+
+
+
+I would also appreciate if you like to include a URL link to download the code in your paper. 
+
+All the codes GPL licensed.
+
+Comments and feedbacks are highly welcome. Do not hesitate to drop me an email: {\tt arg.lanci@gmail.com}
+
+Special thanks to Paolo Bajardi for pushing me to arrange this small repository.
+
+
+
+
+\section{Contribute!}
+
+If you developed a clustering algorithm and would like it to be included here, please write me. I will be glad to add other methods.
+
+
+
+
+
+
+
+
+
+\end{document}  
+         

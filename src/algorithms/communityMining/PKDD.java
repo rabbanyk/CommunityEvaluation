@@ -1,0 +1,678 @@
+package algorithms.communityMining;
+
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JSplitPane;
+
+import org.apache.commons.collections15.Transformer;
+
+import measure.MeasuresUtil;
+import measure.cluster.agreement.ClusteringAgreement;
+import measure.cluster.agreement.partitioning.PartiotioningAgreement;
+import measure.cluster.distance.AlgebricClusteringAgreement;
+import measure.graph.criteria.Modularity;
+import ui.PartitionView;
+import util.DatasetUtils;
+import util.DatasetUtils.ClassicDataset;
+import util.IOUtils;
+import io.graph.gml.GMLGraphWriter;
+import algorithms.AlgorithmUtils;
+import algorithms.AlgorithmUtils.Method;
+import algorithms.communityMining.data.Grouping;
+import algorithms.communityMining.methods.Donetti;
+import algorithms.communityMining.methods.FastModularity;
+import algorithms.communityMining.methods.Infomap;
+import algorithms.communityMining.methods.Louvain;
+import algorithms.communityMining.methods.PottsModel;
+import algorithms.communityMining.methods.WalkTrap;
+import algorithms.topleaders.Partitioning;
+import data.GraphDataSet;
+import data.Pair;
+import dev_Experiments.ExternalIndexComparer;
+import dev_Experiments.ExternalIndexComparer.Mode;
+import edu.uci.ics.jung.graph.Graph;
+
+public class PKDD {
+	DecimalFormat df = new DecimalFormat("#.###");
+	DateFormat formatter = new SimpleDateFormat("mm:ss:SSS");  
+	
+	public static void main(String[] args){
+		String EXPNAME=".";
+		boolean isOverlapping = false, doTrans = false, doQ = false,
+				doAtt = false, doAlphas=false, writeCommRes=false;
+		
+//		"./exps/karate/";
+//		"./exps/Synthetic1000B/";
+//		"./exps/syntheticUndUnw100test/";
+//		"./exps/test/";
+//		"./exps/fbtest/";
+//		"./exps/realBenchmarks/";
+		if (args.length ==0)
+			args = new String[] {"./exps/GTCLASSICS/" , "-q"};
+
+		if(args.length>0) EXPNAME = args[0];
+//		deleteDir(new File(EXPNAME));
+		new File(EXPNAME).mkdir();
+		createCleanDir(new File(EXPNAME+"img"));
+		createCleanDir(new File(EXPNAME+"com"));
+
+
+		for (String arg : args) {
+			switch (arg) {
+			case "-o":
+				isOverlapping = true;
+				break;
+			case "-t":
+				doTrans = true;
+				break;
+			case "-a":
+				doAtt = true;
+				break;
+			case "-q":
+				doQ = true;
+				break;
+			case "-alpha":
+				doAlphas = true;
+				break;
+			case "-w":
+				writeCommRes = true;
+				break;
+			case "-h":
+				System.err.println("./compare  datasetPath (should have a folder called data) \n "
+								+  "-o: use overlapping methods and measures \n "
+								+  "-a: compute agreement with all attributes \n"
+								+  "-q: compute modularity q \n"
+								+  "-t: compute transformed variations (time consuming) \n "
+								+  "-w: write resulted communities on file \n"
+								+  "-alpha: compute the +ARI agreement with different alphas \n");
+			default:
+				break;
+			}
+		}
+//		Vector<GraphDataSet<Integer, Integer>> datasets = new Vector<GraphDataSet<Integer,Integer>>();
+		Iterator<GraphDataSet<Integer, Integer>> datasets = DatasetUtils.<Integer,Integer>loadAll(EXPNAME+"data");
+
+		PKDD test = new PKDD();
+		try {
+//			test.compareMethodsWithGT(datasets, EXPNAME, isOverlapping, doQ, doTrans);
+//			test.compareMethodsAllAtt(datasets, EXPNAME, isOverlapping, doQ, doTrans);
+			test.compareMethods(datasets, EXPNAME, isOverlapping, doAtt, doQ, doTrans, doAlphas, writeCommRes);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+				
+	public <V,E> void compareMethodsWithGT(Iterator<GraphDataSet<V,E>> datasets, String runname, boolean isOverlapping,boolean doQ, boolean  dotrans) throws IOException{
+		compareMethods(datasets, runname, isOverlapping, false, doQ, dotrans, false, false);
+	}
+	public <V,E> void compareMethodsAllAtt(Iterator<GraphDataSet<V,E>> datasets, String runname, boolean isOverlapping,boolean doQ, boolean  dotrans) throws IOException{
+		compareMethods(datasets, runname, isOverlapping, true, doQ, dotrans, false, false);
+	}
+	
+	public <V,E> void compareMethods(Iterator<GraphDataSet<V,E>> datasets, String runname,
+			boolean isOverlapping, boolean doAtt, boolean doQ, boolean  dotrans, boolean doalpha, boolean writeResultedCommunities) throws IOException{
+		FileOutputStream outResults = new FileOutputStream(runname+"res"+".csv");			
+			
+		//Write the header of file, measure names, etc.
+		outResults.write( ("dataset,weights,#nodes,#edges,CM_alg"+ (doQ?",q":"")+",t,k"+ (doAtt?",att":"")).getBytes());
+		for (ClusteringAgreement<V> clusterAgreement :  MeasuresUtil.<V,E>getAgreementAlternatives(null, null, isOverlapping)) {
+			outResults.write(( "," + clusterAgreement.toLatexString() ).getBytes());
+		}
+		for(String name: AlgebricClusteringAgreement.getAllAgreements(null, null,null, null,doalpha, dotrans).first){
+			outResults.write(( "," + name ).getBytes());
+		}
+		outResults.write(("\n").getBytes());
+			
+		while(datasets.hasNext()) {
+			GraphDataSet<V, E> dataset = datasets.next();
+			if (dataset==null) break;
+			dataset.printStats();
+			int n  = dataset.graph.getVertexCount();
+			
+			Modularity<V, E> modularity = doQ? new Modularity<V, E>(dataset.graph,dataset.getWeights()):null;
+			
+			Vector<CommunityMiner<V, E>> communityMiners =  AlgorithmUtils.<V, E>getSelectedCommunititMiners(isOverlapping);
+
+			for (CommunityMiner<V, E> communityMiner : communityMiners) {
+//				Map<String , String> evalMetrics = new  HashMap<String , String>(); 
+				System.err.println(">>  --  Method: " + communityMiner.getName());
+				
+				long startTime = System.currentTimeMillis();
+				Grouping<V> grouping =  communityMiner.findCommunities(dataset.graph, dataset.weights );
+				long duration = (System.currentTimeMillis() - startTime); 
+				System.err.println(">>  --  finished in: " + duration +" milisecond");
+
+				if(grouping==null || grouping.getNumberOfGroups()<1){
+					System.err.println("--------> ERROR :: "+communityMiner+" failed on dataset "+ dataset.name);
+					//TODO: should we write 0 for failure? or igone it as it is?
+					continue;
+				}
+				System.err.print(">>  -- resulted in " + grouping.getNumberOfGroups()+	" clusters " );
+
+					//					dataset.addPartitioingAttribute(communityMiner.getName(), grouping.getGroups());				
+				if (writeResultedCommunities){
+					IOUtils.<V,E>writeGML(runname+"com/"+dataset.name+"."+communityMiner+".gml",
+							dataset.graph, null, dataset.weights, null, dataset.attributes);
+				}
+					
+//					evalMetrics.put("time", formatter.format(new Date(duration)));
+				double q =0;
+				if (doQ){
+					startTime = System.currentTimeMillis();
+					q = modularity.evaluate(grouping.getGroups());
+					System.out.println(" Modularity Q "+q + " (computed in "+(System.currentTimeMillis() - startTime)+" miliseconds )");
+				}
+				
+				Vector<String> atts = new Vector<String>();
+				if(dataset.attributes!=null && dataset.attributes.values().size()>0){
+					for (Object att : dataset.attributes.values().iterator().next().keySet() ){
+						String attName = att.toString().toLowerCase();
+						if(attName.equals("id") || attName.equals("label")) continue;
+							atts.add(attName);
+					}
+				}
+					
+				Map<V,String> labels = null;
+					for(String att: atts)  if (doAtt || att.equals("value")||att.equals("label")){
+						Grouping< V> attClustering =null ;
+						if(att.equals("label")) {
+							labels = dataset.getAttMap("label");
+							continue;
+						}
+						System.err.println("----------> Attribute: "+att);
+						attClustering = dataset.getGrouping(att, new Transformer<Object, Integer>() {
+																		Vector<Object> clusters = new Vector<>();
+																		@Override
+																		public Integer transform(Object obj) {
+																			if (!clusters.contains(obj)) clusters.add(obj);
+																			return clusters.indexOf(obj);
+																		}});
+//							if(att.equals("value")) groundth = attClustering;
+						startTime = System.currentTimeMillis();
+						outResults.write((dataset.name+( (dataset.weights== null)?",n":",y") +","+n+","+dataset.graph.getEdgeCount()
+								+","+ communityMiner.getName() 	+(doQ? ","+q :"")
+								+","+ duration*0.001 + "," + grouping.getNumberOfGroups()
+									+ (doAtt?"," + att:"")	).getBytes());
+						
+						Vector< ClusteringAgreement<V>> res = MeasuresUtil.<V,E>getAgreementAlternatives(dataset.graph, dataset.getWeights(), isOverlapping);
+						for (ClusteringAgreement<V> clusteringAgreement : res) {
+							double accu= clusteringAgreement.getAgreementCovering(dataset.graph.getVertices(), grouping.getGroups(),attClustering.getGroups());
+							outResults.write(( "," + accu ).getBytes());
+							if(((accu+"").equals("NaN")))
+								System.err.println("ERROR:"+dataset.name+":"+clusteringAgreement+" = " + accu + " c: " + grouping.getStatistics() + " with g: "+attClustering.getStatistics());
+//								evalMetrics.put((clusteringAgreement.toString()+(att.equals("value")?"":("."+att))), df.format(accu));
+						}
+						System.err.println(" classics ---- computed in "+(System.currentTimeMillis() - startTime)+" miliseconds )");
+						
+						startTime = System.currentTimeMillis();
+						Pair<Vector<String>, Vector<Double>> tmp = AlgebricClusteringAgreement.getAllAgreements(dataset.graph, dataset.getWeights(), grouping.getGroups(), attClustering.getGroups(),doalpha, dotrans);
+						for (int i = 0; i < tmp.first.size(); i++) {
+							double accu= tmp.second.get(i);
+							outResults.write(( "," + accu ).getBytes());
+							if(((accu+"").equals("NaN")))
+								System.err.println("ERROR:"+dataset.name+":"+tmp.first.get(i)+" = " + accu + " c: " + grouping.getStatistics() + " with g: "+attClustering.getStatistics());
+//								evalMetrics.put((tmp.first.get(i)+(att.equals("value")?"":("."+att))), df.format(accu));
+						}
+						System.err.println(" algebrics ---- computed in "+(System.currentTimeMillis() - startTime)+" miliseconds)");
+						outResults.write(("\n").getBytes());
+					}
+//					evalMetrics.put("k",  grouping.getNumberOfGroups()+"");
+			}
+		}
+		outResults.close();
+	}
+		    
+	public static boolean createCleanDir(File dir) {
+		    if (dir.isDirectory()) {
+		        String[] children = dir.list();
+		        for (int i=0; i<children.length; i++) {
+		            boolean success = createCleanDir(new File(dir, children[i]));
+		            if (!success) {
+		                return false;
+		            }
+		        }
+		    }
+		    return dir.mkdir();
+	//		    return dir.delete();
+	}
+	  
+
+	
+	
+	
+	
+	
+	
+	public <V,E> void __compareMethodsWithGTOld(Iterator<GraphDataSet<V,E>> datasets, String runname, boolean overlapping) throws IOException{
+			
+			FileOutputStream outResults = new FileOutputStream(runname+"res"+".csv");			
+			outResults.write( ("dataset,weights,#nodes,#edges,CM_alg,q,t,k").getBytes());
+
+			for (ClusteringAgreement<V> clusterAgreement :  MeasuresUtil.<V,E>getAgreementAlternatives(null, null, overlapping)) {
+				outResults.write(( "," + clusterAgreement.toLatexString() ).getBytes());
+			}
+			for(String name: AlgebricClusteringAgreement.getAllAgreements(null, null,null, null).first){
+				outResults.write(( "," + name ).getBytes());
+			}
+
+			outResults.write(("\n").getBytes());
+			
+//			System.err.println("Comparing methods on "+datasets.size()+"   datasets ");
+//			for (GraphDataSet<V, E> dataset : datasets) {
+			while(datasets.hasNext()) {
+				GraphDataSet<V, E> dataset = datasets.next();
+				dataset.printStats();
+//				System.out.print("------>  Graph "+dataset.name+" : ");
+//				System.out.print(dataset.graph.getVertexCount()+" nodes and " + dataset.graph.getEdgeCount() + " Edges");
+				
+				Modularity<V, E> modularity = new Modularity<V, E>(dataset.graph,dataset.getWeights());
+				Vector<CommunityMiner<V, E>> communityMiners =  AlgorithmUtils.<V, E>getSelectedCommunititMiners(overlapping);
+				initializePlot(dataset.name, communityMiners.size());
+				for (CommunityMiner<V, E> communityMiner : communityMiners) {
+					Map<String , String> evalMetrics = new  HashMap<String , String>(); 
+					System.err.println(">>  --  Method: " + communityMiner.getName());
+				
+					long startTime = System.currentTimeMillis();
+					Grouping<V> grouping =  communityMiner.findCommunities(dataset.graph, dataset.weights );
+					long duration = (System.currentTimeMillis() - startTime); //from nano to milisecond
+					System.err.println(">>  --  finished in: " + duration +" milisecond");
+
+					if (grouping == null) continue;
+					dataset.addPartitioingAttribute(communityMiner.getName(), grouping.getGroups());				
+					IOUtils.<V,E>writeGML(runname+"com/"+dataset.name+"."+communityMiner+".gml",
+							dataset.graph, null, dataset.weights, null, dataset.attributes);
+					
+					System.err.print(">>  -- resulted in " + grouping.getNumberOfGroups()+
+							" clusters with Q = " );
+					startTime = System.currentTimeMillis();
+					if(grouping==null || grouping.getNumberOfGroups()<1){
+//						System.in.read();
+						System.err.println("erooor :: "+communityMiner+" failed on dataset "+ dataset.name);
+					}
+					double q = modularity.evaluate(grouping.getGroups());
+					System.out.println(" : "+q + 
+							" (Q computed in "+(System.currentTimeMillis() - startTime)+" miliseconds )");
+
+					int n  = dataset.graph.getVertexCount();
+					outResults.write((dataset.name+( (dataset.weights== null)?",n":",y") +","+n+","+dataset.graph.getEdgeCount()
+							+","+ communityMiner.getName()+
+							"," + df.format(q) + "," + duration*0.001 + "," +
+								+ grouping.getNumberOfGroups()).getBytes());
+					
+					evalMetrics.put("time", formatter.format(new Date(duration)));
+					evalMetrics.put("Q", df.format(q));
+					
+					Vector<String> atts = new Vector<String>();
+					if(dataset.attributes!=null && dataset.attributes.values().size()>0){
+						for (Object att : dataset.attributes.values().iterator().next().keySet() ){
+							String attName = att.toString().toLowerCase();
+							if(attName.equals("id") || attName.equals("label")) continue;
+							atts.add(attName);
+						}
+					}
+					Map<V,String> labels = null;
+					Grouping<V> groundth = null;
+					for(String att: atts) if (att.equals("value")||att.equals("label")){
+						Grouping< V> attClustering =null ;
+						if(att.equals("label")) labels = dataset.getAttMap("label");
+						else {
+							attClustering = dataset.getGrouping(att, new Transformer<Object, Integer>() {
+							Vector<Object> clusters = new Vector<>();
+							@Override
+							public Integer transform(Object obj) {
+								if (!clusters.contains(obj)) clusters.add(obj);
+								return clusters.indexOf(obj);
+							}
+							});
+						}
+						if(att.equals("value")) groundth = attClustering;
+						startTime = System.currentTimeMillis();
+
+						Vector< ClusteringAgreement<V>> res = MeasuresUtil.<V,E>getAgreementAlternatives(dataset.graph, dataset.getWeights(), overlapping);
+						for (ClusteringAgreement<V> clusteringAgreement : res) {
+							double accu=0;
+							if (att.equals("value")){
+								accu = clusteringAgreement.getAgreementCovering(dataset.graph.getVertices(), grouping.getGroups(),attClustering.getGroups());
+								outResults.write(( "," + accu ).getBytes());
+								
+								if(((accu+"").equals("NaN")))
+								System.err.println(dataset.name+":"+clusteringAgreement+" = " + accu 
+										+ " c: " + grouping.getStatistics() 
+										+ " with g: "+attClustering.getStatistics()
+										);
+							}
+//							System.err.print("-----"+att+":"+accu+":"+"."+clusteringAgreement);
+//							if (att.equals("value"))
+
+							evalMetrics.put((clusteringAgreement.toString()+(att.equals("value")?"":("."+att))), df.format(accu));
+						}
+						System.err.println(" classics ---- computed in "+(System.currentTimeMillis() - startTime)+" miliseconds )");
+						startTime = System.currentTimeMillis();
+
+						Pair<Vector<String>, Vector<Double>> tmp = AlgebricClusteringAgreement.getAllAgreements(dataset.graph, dataset.getWeights(), grouping.getGroups(), attClustering.getGroups());
+						for (int i = 0; i < tmp.first.size(); i++) {
+							double accu=0;
+							if (att.equals("value")){
+								accu = tmp.second.get(i);
+								outResults.write(( "," + accu ).getBytes());
+								
+								if(((accu+"").equals("NaN")))
+								System.err.println(dataset.name+":"+tmp.first.get(i)+" = " + accu 
+										+ " c: " + grouping.getStatistics() 
+										+ " with g: "+attClustering.getStatistics()
+										);
+							}
+							evalMetrics.put((tmp.first.get(i)+(att.equals("value")?"":("."+att))), df.format(accu));
+				
+						}
+						System.err.println(" algebrics ---- computed in "+(System.currentTimeMillis() - startTime)+" miliseconds)");
+
+					}
+					outResults.write(("\n").getBytes());
+					
+					evalMetrics.put("k",  grouping.getNumberOfGroups()+"");
+				
+					
+					plotCommunities(runname, dataset.name //.substring(0,dataset.name.indexOf('.'))
+							+" "+ communityMiner.getName() + " k="+ evalMetrics.get("k") + 
+							" Q="+ evalMetrics.get("Q") + " NMI="+ evalMetrics.get("NMI") // toString()
+							, dataset.graph,dataset.weights, labels, groundth, grouping);
+				}
+			}
+			outResults.close();
+		}
+		  
+	  public <V,E> void __compareMethodsSynth(Vector<GraphDataSet<V, E>> datasets, String runname) throws IOException{
+			FileOutputStream outResults = new FileOutputStream(runname+"res"+".csv");			
+			outResults.write( ("dataset,weights,#nodes,#edges,CM_alg,q,t,k").getBytes());
+
+			for (ClusteringAgreement<V> clusteringAgreement :  MeasuresUtil.<V,E>getAgreementAlternatives(null, null)) {
+				outResults.write(( "," + clusteringAgreement.toLatexString() ).getBytes());
+			}
+			outResults.write(("\n").getBytes());
+			
+			System.err.println("Comparing methods on "+datasets.size()+"   datasets ");
+			for (GraphDataSet<V, E> dataset : datasets) {
+				dataset.printStats();
+//				System.out.print("------>  Graph "+dataset.name+" : ");
+//				System.out.print(dataset.graph.getVertexCount()+" nodes and " + dataset.graph.getEdgeCount() + " Edges");
+				
+				Modularity<V, E> modularity = new Modularity<V, E>(dataset.graph,dataset.getWeights());
+
+				
+				Vector<String> atts = new Vector<String>();
+				if(dataset.attributes!=null && dataset.attributes.values().size()>0){
+					for (Object att : dataset.attributes.values().iterator().next().keySet() ){
+						String attName = att.toString().toLowerCase();
+						if(attName.equals("id") || attName.equals("label")) continue;
+						atts.add(attName);
+					}
+				}
+				System.err.println(atts);
+				Map<V,String> labels = null;
+				Grouping<V> groundth = null;
+				for(String att: atts){
+					Grouping< V> attClustering = dataset.getGrouping(att, new Transformer<Object, Integer>() {
+						Vector<Object> clusters = new Vector<>();
+						@Override
+						public Integer transform(Object obj) {
+							if (!clusters.contains(obj)) clusters.add(obj);
+							return clusters.indexOf(obj);
+						}
+					});
+					if(att.equals("label")) labels = dataset.getAttMap("label");
+					if(att.equals("value")) groundth = attClustering;
+				}
+				
+				Vector<CommunityMiner<V, E>> communityMiners =  AlgorithmUtils.<V, E>getSelectedCommunititMiners();
+//				initializePlot(dataset.name, communityMiners.size());
+				
+				for (CommunityMiner<V, E> communityMiner : communityMiners) {
+//					Map<String , String> evalMetrics = new  HashMap<String , String>(); 
+
+					System.err.println("--Method: " + communityMiner.getName());
+				
+					long startTime = System.nanoTime();
+					Grouping<V> grouping =  communityMiner.findCommunities(dataset.graph, dataset.weights );
+					long endTime = System.nanoTime();
+					long duration = (endTime - startTime)/1000000; //from nano to milisecond
+
+					if (grouping == null) continue;
+//					GMLGraphWriter<V, E> gmlGraphWriter = new GMLGraphWriter<V, E>();
+//					gmlGraphWriter.writeGraph(runname+"com/"+dataset.name+"."+communityMiner+".gml",
+//							dataset.graph, null, dataset.weights, null, dataset.attributes);
+//					dataset.addPartitioingAttribute(communityMiner.getName(), grouping.getGroups());				
+					
+					System.err.print("--done! in " + duration+ "   q = ");
+					double q = modularity.evaluate(grouping.getGroups());
+					System.out.println("--"+q);
+
+					System.err.println("mu = "+dataset.name.substring(1,2));
+					int n  = dataset.graph.getVertexCount();
+					outResults.write((dataset.name+( (dataset.weights== null)?",n":",y") +","+n+","+dataset.graph.getEdgeCount()
+							+","+ communityMiner.getName()+
+							"," + df.format(q) + "," + duration*0.001 + "," +
+							dataset.name.substring(1,2) //mu
+								//+ grouping.getNumberOfGroups()
+								).getBytes());
+					
+//					evalMetrics.put("time", formatter.format(new Date(duration)));
+//					evalMetrics.put("Q", df.format(q));
+					
+//					Vector<String> atts = new Vector<String>();
+//					if(dataset.attributes!=null && dataset.attributes.values().size()>0){
+//						for (Object att : dataset.attributes.values().iterator().next().keySet() ){
+//							String attName = att.toString().toLowerCase();
+//							if(attName.equals("id") || attName.equals("label")) continue;
+//							atts.add(attName);
+//						}
+//					}
+//					System.err.println(atts);
+//					Map<V,String> labels = null;
+//					Grouping<V> groundth = null;
+//					for(String att: atts){
+//						Grouping< V> attClustering = dataset.getGrouping(att, new Transformer<Object, Integer>() {
+//							Vector<Object> clusters = new Vector<>();
+//							@Override
+//							public Integer transform(Object obj) {
+//								if (!clusters.contains(obj)) clusters.add(obj);
+//								return clusters.indexOf(obj);
+//							}
+//						});
+//						if(att.equals("label")) labels = dataset.getAttMap("label");
+//						if(att.equals("value")) groundth = attClustering;
+
+						Vector< ClusteringAgreement<V>> res = MeasuresUtil.getAgreementAlternatives(dataset.graph, dataset.getWeights());
+						for (ClusteringAgreement<V> clusteringAgreement : res) {
+							System.err.println("-----"+clusteringAgreement.toLatexString());
+//							System.err.println(attClustering.getGroups());
+							double accu=0;
+//							if (att.equals("value")){
+								accu = clusteringAgreement.getAgreementCovering(dataset.graph.getVertices(), grouping.getGroups(),groundth.getGroups());
+//							}
+//							System.err.print("-----"+att+":"+accu+":"+"."+clusteringAgreement);
+//							if (att.equals("value"))
+								outResults.write(( "," + accu ).getBytes());
+
+//							evalMetrics.put((clusteringAgreement.toString()+(att.equals("value")?"":("."+att))), df.format(accu));
+						}
+//
+//						
+//					}
+					outResults.write(("\n").getBytes());
+					
+//					evalMetrics.put("k",  grouping.getNumberOfGroups()+"");
+				
+					
+//					plotCommunities(runname, dataset.name //.substring(0,dataset.name.indexOf('.'))
+//							+" "+ communityMiner.getName() + " k="+ evalMetrics.get("k") + 
+//							" Q="+ evalMetrics.get("Q") + " NMI="+ evalMetrics.get("NMI") // toString()
+//							, dataset.graph,dataset.weights, labels, groundth, grouping);
+				}
+			}
+			outResults.close();
+		}
+	  
+	  public <V,E> void __compareExternals(Vector<GraphDataSet<V, E>> datasets, String runname) throws IOException{
+			FileOutputStream outResults = new FileOutputStream(runname+"resExt"+".csv");			
+			outResults.write( ("dataset,weights,#nodes,#edges,CM_alg,q,t,k").getBytes());
+
+			for (ClusteringAgreement clusteringAgreement :  MeasuresUtil.getAgreementAlternatives(null, null)) {
+				outResults.write(( "," + clusteringAgreement.toLatexString() ).getBytes());
+			}
+			outResults.write(("\n").getBytes());
+			
+			System.err.println("Comparing methods on "+datasets.size()+"   datasets ");
+			for (GraphDataSet<V, E> dataset : datasets) {
+				dataset.printStats();
+				
+				Vector<String> atts = new Vector<String>();
+				if(dataset.attributes!=null && dataset.attributes.values().size()>0){
+					for (Object att : dataset.attributes.values().iterator().next().keySet() ){
+						String attName = att.toString().toLowerCase();
+						if(attName.equals("id") || attName.equals("label")) continue;
+						atts.add(attName);
+					}
+				}
+				Map<V,String> labels = null;
+				Grouping<V> groundth = null;
+				for(String att: atts){
+					Grouping< V> attClustering = dataset.getGrouping(att, new Transformer<Object, Integer>() {
+						Vector<Object> clusters = new Vector<>();
+						@Override
+						public Integer transform(Object obj) {
+							if (!clusters.contains(obj)) clusters.add(obj);
+							return clusters.indexOf(obj);
+						}
+					});
+					if(att.equals("label")) labels = dataset.getAttMap("label");
+					if(att.equals("value")) groundth = attClustering;
+				}
+				
+				Modularity<V, E> modularity = new Modularity<V, E>(dataset.graph,dataset.getWeights());
+
+				ExternalIndexComparer<V, E> comparer = new ExternalIndexComparer<>(Mode.RAND2G);//FRAGKNEE);//RAND2G);
+				Vector<Vector<Set<V>>> randomClusters = comparer.getParts(dataset.graph, groundth.getGroups());
+				for (Vector<Set<V>> grouping : randomClusters) {
+					Map<String , String> evalMetrics = new  HashMap<String , String>(); 
+
+					if (grouping == null) continue;
+					double q = modularity.evaluate(grouping);
+//					System.out.print("--"+q);
+
+					int n  = dataset.graph.getVertexCount();
+					outResults.write((dataset.name+( (dataset.weights== null)?",n":",y") +","+n+","+dataset.graph.getEdgeCount()
+							+","+ comparer.mode +
+							"," + df.format(q) + "," + 0*0.001 + "," +
+								+ grouping.size()).getBytes());
+					
+
+					Vector< ClusteringAgreement<V>> res = MeasuresUtil.getAgreementAlternatives(dataset.graph, dataset.getWeights());
+					for (ClusteringAgreement<V> clusteringAgreement : res) {
+//							System.err.println("-----"+clusteringAgreement.toLatexString());
+//							System.err.println(attClustering.getGroups());
+						double accu= clusteringAgreement.getAgreementCovering(dataset.graph.getVertices(), grouping, groundth.getGroups());
+							outResults.write(( "," + accu ).getBytes());
+					}
+					outResults.write(("\n").getBytes());
+				}					
+			}
+			outResults.close();
+		}
+	  
+	boolean plotGraphs = false;
+	JFrame jf;
+	private void initializePlot(String title, int n){
+			if (!plotGraphs) return;
+			jf = new JFrame(title);
+		//	jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			if(n>4)
+		    jf.setLayout( new GridLayout( n/2 +n%2,2)); 
+			else 		    jf.setLayout( new GridLayout( n,1)); 
+
+		    jf.setBackground(Color.white);
+	}
+	public <V,E> void plotCommunities(String runname,String title,Graph<V,E> graph, 	
+			Map<E, Double> edgeWeights ,Map<V,String> labels ,Grouping<V> colourGroup, Grouping<V> shapeGroup){
+		if (!plotGraphs) return;
+
+		if (graph.getVertexCount()>500) return;
+		PartitionView< V, E> partitionView = new PartitionView< V, E>(graph,
+				edgeWeights,labels,
+				colourGroup,
+				shapeGroup);
+		partitionView.setSize(200, 200);
+		JSplitPane pane = new JSplitPane(0, new JLabel(title,JLabel.CENTER) ,partitionView);
+		pane.setBackground(Color.white);
+		pane.setDividerSize(0);
+		jf.getContentPane().add(pane);
+		jf.pack();
+		jf.setVisible(true);
+		partitionView.saveAsFigure(runname +"/img/"+title);
+		
+		//Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		//jf.setLocation((int)screenSize.getWidth()/6, (int)screenSize.getHeight()/6);
+		//jf.setSize((int)screenSize.getWidth()*2/3,(int)screenSize.getHeight()*2/3);
+	}
+	
+
+			
+		
+}
+	
+//			test.compareMethodsSynth(datasets, EXPNAME);
+//			test.compareExternals(datasets, EXPNAME);
+//---------------  EXP 1 -------------------------
+//for (GraphDataSet<Integer, Integer> dataset: DatasetUtils.<Integer,Integer>loadAll("../Datasets/classics/")){
+//	if (dataset.graph.getEdgeCount()<20000){
+//		dataset.printStats();
+//		datasets.add(dataset);
+//	}
+//}
+//---------------  EXP 2 -------------------------
+//for (GraphDataSet<Integer, Integer> dataset: DatasetUtils.<Integer,Integer>loadAll("../Datasets/SNAP/facebook/")){
+//	if (dataset.graph.getEdgeCount()<20000){
+//		dataset.printStats();
+//		datasets.add(dataset);
+//	}
+//}
+//
+//for (GraphDataSet<Integer, Integer> dataset: DatasetUtils.<Integer,Integer>loadAll("../Datasets/Biological/linkGroup/")){
+//		{dataset.printStats();
+//		datasets.add(dataset);}
+//}
+
+//for (GraphDataSet<Integer, Integer> dataset: DatasetUtils.<Integer,Integer>loadAll("src/models/generative/iGraph/")){
+//	if (dataset.graph.getEdgeCount()<20000){
+//		dataset.printStats();
+//		datasets.add(dataset);
+//	}
+//}
+//datasets.addAll(DatasetUtils.<Integer,Integer>loadAll("../Datasets/classics/power/")) ;
+//datasets.add(DatasetUtils.<Integer,Integer>load("ff.gml")) ;
+
+
+//	datasets.addAll(DatasetUtils.loadAllClassics());
+//datasets.add(DatasetUtils.<Integer,Integer>load(new File("Rice31.gml")));/home/reihaneh/projects/Datasets/SNAP/facebook
+//datasets.addAll(ClassicDatasetLoader.loadLFR(false));
+//datasets.add(ClassicDatasetLoader.loadFacebook(false));
+
+

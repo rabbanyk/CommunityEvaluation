@@ -1,0 +1,7 @@
+*.class
+*.iml
+*.classpath
+*.project
+/target/
+/.idea/
+Demo.java

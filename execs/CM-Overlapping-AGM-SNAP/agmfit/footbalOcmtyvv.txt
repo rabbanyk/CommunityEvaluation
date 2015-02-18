@@ -1,0 +1,5 @@
+WakeForest	FloridaState	NorthCarolinaState	Virginia	GeorgiaTech	Duke	NorthCarolina	Clemson	Maryland	
+TexasElPaso	FresnoState	Rice	SouthernMethodist	Nevada	SanJoseState	Tulsa	TexasChristian	Hawaii	
+Rutgers	VirginiaTech	BostonCollege	WestVirginia	Syracuse	Pittsburgh	Temple	MiamiFlorida	
+SanDiegoState	BrighamYoung	NewMexico	Wyoming	Utah	ColoradoState	AirForce	NevadaLasVegas	
+WashingtonState	SouthernCalifornia	ArizonaState	Arizona	Washington	Oregon	Stanford	OregonState	California	UCLA	

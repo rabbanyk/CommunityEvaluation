@@ -1,0 +1,23 @@
+The program commfind impements the algorithms for the detection of
+communities in complex networks described in the papers:
+1) L. Donetti and Miguel A Muñoz,
+   Detecting network communities: a new systematic and efficient algorithm,
+    J. Stat. Mech.: Theor. Exp. (2004) P10012;
+2) L. Donetti and Miguel A Muñoz,
+   Improved spectral algorithm for the detection of network communities,
+   physics/0504059;
+with the choices of angular distance and complete linkage clustering.
+The method described in 2) is the default one, while the other one is
+used if the command line flag -L is used.
+
+It takes two command line arguments: the name of the file that
+describe the network topology, and the number of eigenvector to
+compute. The input file must be a text file where each line contains
+an (undirected) edge, that is the vertices it connects (see
+exapmle.net). The network must be connected.
+
+The output is the list of nodes (starting from index 0) with the index
+denoting the community to which it has been assigned.
+
+Author contact information:
+  donetti@gmail.com

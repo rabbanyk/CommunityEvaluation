@@ -1,0 +1,5 @@
+#!/bin/bash
+g++ RNMain.cpp msl/MSL_CMatrix.cpp msl/MSL_CMatrix_SparseW.cpp msl/MSL_CMatrix_Dense.cpp msl/ML_Utils.cpp clusterclasses.cpp msl/MSL_Stats1D.cpp -o rnCDw  -DAPM_GREEDY_SOLVER -DMSL_TCMWEIGHTED -O2 
+g++ RNMain.cpp msl/MSL_CMatrix.cpp msl/MSL_CMatrix_SparseW.cpp msl/MSL_CMatrix_Dense.cpp msl/ML_Utils.cpp clusterclasses.cpp msl/MSL_Stats1D.cpp -o rnCD   -DAPM_GREEDY_SOLVER -O2 
+g++ RNMain.cpp msl/MSL_CMatrix.cpp msl/MSL_CMatrix_SparseW.cpp msl/MSL_CMatrix_Dense.cpp msl/ML_Utils.cpp clusterclasses.cpp msl/MSL_Stats1D.cpp -o rnMRAw -DMRA_SOLVER -DMSL_TCMWEIGHTED -O2 
+g++ RNMain.cpp msl/MSL_CMatrix.cpp msl/MSL_CMatrix_SparseW.cpp msl/MSL_CMatrix_Dense.cpp msl/ML_Utils.cpp clusterclasses.cpp msl/MSL_Stats1D.cpp -o rnMRA  -DMRA_SOLVER -O2 
