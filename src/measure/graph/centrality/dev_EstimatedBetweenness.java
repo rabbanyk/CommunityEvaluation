@@ -12,7 +12,7 @@ import org.apache.commons.collections15.Transformer;
 import edu.uci.ics.jung.algorithms.util.MapBinaryHeap;
 
 //TODO: Justins implementation, haven't checked it
-public class EstimatedBetweenness<V,E>  extends GraphVertexScorer<V,E>{
+public class dev_EstimatedBetweenness<V,E>  extends GraphVertexScorer<V,E>{
 
     private class BetweennessData {
         double distance;
