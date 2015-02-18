@@ -6,7 +6,7 @@ import edu.uci.ics.jung.algorithms.shortestpath.DijkstraDistance;
 import edu.uci.ics.jung.algorithms.shortestpath.Distance;
 import edu.uci.ics.jung.algorithms.shortestpath.UnweightedShortestPath;
 
-public class dev_DistanceVariance<V,E>  extends GraphVertexScorer<V,E>{
+public class DistanceVariance<V,E>  extends GraphVertexScorer<V,E>{
 
 	
 	public  void initializeAllScores() {

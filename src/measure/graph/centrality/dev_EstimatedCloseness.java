@@ -27,7 +27,7 @@ import edu.uci.ics.jung.graph.Graph;
  * error is e*Delta where Delta is the diameter of the graph.
  **/
 //TODO: Justin's implementation, haven't check it, modify it like the original closeness to handle unconnected graphs
-public class EstimatedCloseness<V, E>  extends GraphVertexScorer<V,E>{
+public class dev_EstimatedCloseness<V, E>  extends GraphVertexScorer<V,E>{
 
 	public Distance<V> distance;
 	// the number of sample vertices
