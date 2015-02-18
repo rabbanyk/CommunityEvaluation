@@ -8,7 +8,6 @@ dev_*/
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.ear
 

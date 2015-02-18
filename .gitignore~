@@ -1,6 +1,8 @@
 *.class
 *.pdf
 *.html
+dev_*/
+*_files/
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
