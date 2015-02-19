@@ -9,6 +9,7 @@ Which includes:
 * Agreement indices to compare two given community structures (e.g. ), presented in following paper:
   * [R Rabbany et al., *Generalization of Clustering Agreements and Distances for Overlapping Clusters and Network Communities*; CORR 2014](http://arxiv.org/abs/1412.2601)
   * see `measure\cluster`
+  * see a summary and examples in this [ipython notebook](http://nbviewer.ipython.org/github/rabbanyk/CommunityEvaluation/blob/master/Clustering%20Agreement.ipynb#)
 * Implementation of the TopLeaders algorithm presented in:
   * [R Rabbany et al., *Top leaders community detection approach in information networks*, SNA-KDD 2010](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.419.1134)
   * see `algorithms\topleaders`
