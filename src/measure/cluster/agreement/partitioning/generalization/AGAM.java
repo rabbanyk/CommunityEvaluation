@@ -17,7 +17,7 @@ public class AGAM<V> extends GAM<V>{
 	}
 	public AGAM(Transformer<Double, Double> phi, Transformer<Pair<Set<V>>, Double> etha) {
 		super(phi,etha);
-		System.err.println(phi);
+//		System.err.println(phi);
 	}
 	
 	public double getAgreement(Vector<Set<V>> U, Vector<Set<V>> V) {
@@ -50,8 +50,8 @@ public class AGAM<V> extends GAM<V>{
 		double res = sU+sV-2*I;
 		double dom = sU+sV-2*E;
 		
-		if(this.type == Type.VI)
-			System.err.println( "------------------- sU:"+sU+" sV: "+sV+" I: "+I + " E: " +E);
+//		if(this.type == Type.VI)
+//			System.err.println( "------------------- sU:"+sU+" sV: "+sV+" I: "+I + " E: " +E);
 //		if(res>Epsilon || res<-1*Epsilon){
 //			if(dom <Epsilon && dom >-1*Epsilon){
 //				System.err.println("--- sU+sV-2*I != 0 but sU+sV-2*E==0  :::: sU+sV-2*I="+ res+" / dom ="+ 

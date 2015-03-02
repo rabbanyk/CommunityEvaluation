@@ -40,6 +40,7 @@ public abstract class RelativeCommunityCriteria<V,E> implements RelativeCriteria
 		this.selfWeight = selfWeight;
 		this.normalizedWeight = normalized;
 		
+		if (graph!=null)
 		if (weights==null){
 			MaxWeight = 1;
 			SumWeight = graph.getEdgeCount();

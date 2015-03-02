@@ -40,9 +40,9 @@ public class ListGrouingReader<V> extends GroupingReader<V>{
 			if(tmp.length()>0 && (ignoreline==null || !tmp.startsWith(ignoreline))){
 				partitioning.addGroup(new HashSet<V>());
 				if (tmp.startsWith("[")) tmp = tmp.substring(1, tmp.length()-1);
-	//			System.err.println(tmp);
-				for (String vId :tmp.split("[,\\s]+"))
+				for (String vId :tmp.split("[,\\s]+")){
 					partitioning.getGroup(clusterId).add(vertexTransformer.transform(vId));
+					}
 				clusterId++;
 		}
 		

@@ -67,7 +67,7 @@ public class AlgebricClusteringAgreement<T> extends ClusteringAgreement<T>{
 			this.n = G!=null?G.getVertexCount():0;
 			if (G!=null && structureType!=StructureType.INDEPENDENT){
 				node_ids = getNodeIds(G.getVertices());
-
+				numberofdatapoints = G.getVertices().size();
 				N = getIncidence(G, weights, node_ids);
 //				System.err.println(">>>>>> N:    "+ N.rows()+"x"+N.columns()+" : " + N.getNonZeroCount());
 //				NT = N.transpose();
@@ -259,7 +259,7 @@ public class AlgebricClusteringAgreement<T> extends ClusteringAgreement<T>{
 		}
 		return node_ids; 
 	}
-	private static <T> Set<T> getAllDatapoints(Vector<Set<T>> U, Vector<Set<T>> V){
+	public static <T> Set<T> getAllDatapoints(Vector<Set<T>> U, Vector<Set<T>> V){
 		HashSet<T> allDataPoints = new HashSet<>();
 		if(U!=null)for (Set<T> x : U) allDataPoints.addAll(x);
 		if(V!=null)for (Set<T> x : V) allDataPoints.addAll(x);
@@ -267,11 +267,12 @@ public class AlgebricClusteringAgreement<T> extends ClusteringAgreement<T>{
 	}
 	@Override
 	public double getAgreement(Vector<Set<T>> U, Vector<Set<T>> V) {
-		if (node_ids ==null) {
+		if (node_ids ==null || numberofdatapoints ==0) {
 			Set<T> allDataPoints =getAllDatapoints(U, V);
 			numberofdatapoints = allDataPoints.size();
 			node_ids =  getNodeIds(allDataPoints);
 		}
+
 		return getAgreement(getClusteringMatrix(numberofdatapoints,U,node_ids), 
 							getClusteringMatrix(numberofdatapoints,V,node_ids));
 	}
@@ -283,9 +284,11 @@ public class AlgebricClusteringAgreement<T> extends ClusteringAgreement<T>{
 	public static <T> AbstractMatrix getClusteringMatrix(int numberOfdatapoints,Vector<Set<T>> clustering, Transformer<T, Integer> node_ids){
 		if(clustering==null) return null;
 		AbstractMatrix U = createMatrix(numberOfdatapoints,clustering.size());
-		for (int k = 0; k < clustering.size(); k++) 
-			for (T i : clustering.get(k)) 
+		for (int k = 0; k < clustering.size(); k++) {
+			for (T i : clustering.get(k)) {
 				U.set(node_ids.transform(i) , k , 1);
+			}
+			}
 		return U;
 	}
 	
@@ -306,7 +309,7 @@ public class AlgebricClusteringAgreement<T> extends ClusteringAgreement<T>{
 	}
 	
 	public String toString(){
-		String res = "alg_";
+		String res = "a_";
 		switch (type) {
 		case NMI:
 			res += (adjusted)?"NMI_sqrt": (normalized?"NMI_sum":"VI") ;	
@@ -321,19 +324,19 @@ public class AlgebricClusteringAgreement<T> extends ClusteringAgreement<T>{
 			res = ((adjusted)?"A":"")+"OMEGA";
 			break;
 		default:
-			res += ((adjusted)?"Adj_":"" )+type ;		
+			res += ((adjusted)?"A":"" )+type ;		
 		}
-		res+= same_nodes?"'":"";
+		res+= (same_nodes&&type!=AType.NMI)?"'":"";
 		return res;
 	}
 	public String toLatexString(){
 		String res = "";
 		switch (type) {
 		case NMI:
-			res += (adjusted)?"NMI_{\\sqrt}": (normalized?"NMI_{+}":"VI") ;	
+			res += (adjusted)?"NMI_\\sqrt{.}^a": (normalized?"NMI_{+}^a":"VI^a") ;	
 			break;
 		case ALT_TRACE:
-			res += (adjusted)?"I_{\\sqrt{tr}}": (normalized?"I_{tr}":"Tr_un_normalized") ;	
+			res += (adjusted)?"I_\\sqrt{tr}": (normalized?"I_{tr}":"Tr_un_normalized") ;	
 			break;
 		case ALT_NORM:
 			res += "I_{norm}";
@@ -342,13 +345,13 @@ public class AlgebricClusteringAgreement<T> extends ClusteringAgreement<T>{
 			res += ((adjusted)?"A":"" ) ;
 			switch (type) {
 			case COMEMEBR_RI:
-				res+="RI";
+				res+="RI_\\delta";
 				break;
 			case OVERLAP_RI:
-				res+="oRI";
+				res+="RI_{o}";
 				break;
 			case OVERLAP_VI:
-				res+="VI";
+				res+="VI_{o}";
 				break;
 			case OMEGA:
 				res+="\\omega";
@@ -357,7 +360,7 @@ public class AlgebricClusteringAgreement<T> extends ClusteringAgreement<T>{
 				break;
 			}
 		}
-		res+= same_nodes?"'":"";
+		res+= (same_nodes&&type!=AType.NMI)?"'":"";
 		return res;
 	}
 	public D getDistance(AbstractMatrix U, AbstractMatrix V) {

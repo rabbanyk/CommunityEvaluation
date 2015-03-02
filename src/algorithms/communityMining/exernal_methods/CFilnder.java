@@ -1,4 +1,4 @@
-package algorithms.communityMining.methods;
+package algorithms.communityMining.exernal_methods;
 //http://www.cfinder.org/
 
 //TODO: check data http://cfinder.org/wiki/?n=Main.Data 

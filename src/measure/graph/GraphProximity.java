@@ -47,6 +47,7 @@ public abstract class GraphProximity <V, E> extends Proximity<V> {
 		this.normalizedWeight = normalized;
 		cache = new HashMap<Pair<V>, Number>();
 		
+		if(graph!=null)
 		if (weights==null){
 			MaxWeight = 1;
 			SumWeight = graph.getEdgeCount();

@@ -10,7 +10,7 @@ import java.util.Vector;
 public class ListGroupingWriter<V> extends GroupingWriter<V>{
 
 	@Override
-	public void writeGrouping(String filename, Vector<Set<V>> grouping, Map<V, Integer> vertex_Ids) throws IOException {
+	public void writeGrouping(String filename, Vector<Set<V>> grouping, Map<V, String> vertex_Ids) throws IOException {
 		FileOutputStream file = new FileOutputStream(filename);
 
 		for (int i =0; i< grouping.size() ; i++){

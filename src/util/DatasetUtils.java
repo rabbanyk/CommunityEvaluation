@@ -13,13 +13,13 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.collections15.Transformer;
-import org.python.antlr.PythonParser.return_stmt_return;
-
 import algorithms.communityMining.data.Grouping;
 import data.GraphDataSet;
 import edu.uci.ics.jung.graph.Graph;
@@ -28,7 +28,6 @@ import edu.uci.ics.jung.graph.SparseGraph;
 public class DatasetUtils{
 	
 	static String datasetLocation = "./Datasets/";
-	//IOUtils<V, E> ioUtils = new IOUtils<>();
 	public static enum ClassicDataset {karate, wkarate, football, polbooks, polblogs};//, strike};
 	public static enum DummyDataset {Structure, Omega, Weights, NMIexample};
 	
@@ -49,6 +48,7 @@ public class DatasetUtils{
 	public static GraphDataSet<Integer, Integer> loadDummy(DummyDataset datasetName){
 		
 		GraphDataSet<Integer, Integer> dataset=new GraphDataSet<Integer, Integer>(datasetName.toString());
+		dataset.attributes = new HashMap<Integer, HashMap<Object,Object>>();
 		Graph<Integer, Integer> g =  new SparseGraph<>() ;
 		dataset.graph = g;
 		int c=0;
@@ -62,12 +62,19 @@ public class DatasetUtils{
 			g.addEdge(c++,5,6);g.addEdge(c++,5,8);
 			g.addEdge(c++,6,7);g.addEdge(c++,6,8);
 			g.addEdge(c++,7,8);
+			dataset.addPartitioingAttribute("V",createClusteringFromArray(new int[][]{ {0,1,2,3,4,5},{6,7,8}}));
+			dataset.addPartitioingAttribute("U1",createClusteringFromArray(new int[][]{ {1,2,3,4,5},{0,6,7,8}}));
+			dataset.addPartitioingAttribute("U2",createClusteringFromArray(new int[][]{ {0,1,2,3,4},{5,6,7,8}}));
 			break;
 		case Omega:
 			g.addEdge(c++,0,1);g.addEdge(c++,0,4);
 			g.addEdge(c++,1,2);
 			g.addEdge(c++,2,3);
 			g.addEdge(c++,3,4);
+			//TODO: wrong bec omega att only one val per att!! 
+			dataset.addPartitioingAttribute("V", createClusteringFromArray(new int[][]{ {0,3,4},{1,2,3},{2,3,4}}));
+			dataset.addPartitioingAttribute("U1", createClusteringFromArray(new int[][]{ {0,3,4},{1},{2}}));
+			dataset.addPartitioingAttribute("U2", createClusteringFromArray(new int[][]{ {0,3,4},{1},{2,3}}));
 			break;
 		case Weights:
 			dataset.weights = new HashMap<Integer, Double>();
@@ -81,10 +88,15 @@ public class DatasetUtils{
 			dataset.weights.put(c, 1.0);g.addEdge(c++,7,8);
 			break;
 		case NMIexample:
-			//TODO
-			int[][] V = new int [][]{{1, 2, 3 ,4 ,5 },{6 ,7, 8},{9 ,10 ,11}};
-			int[][] U1 = new int [][]{{1 ,2 ,3 ,4, 5}, {6, 7 ,8, 9, 10, 11}};
-			int[][] U2 = new int [][]{{1 ,2 ,3},{6, 7 ,8},{4, 5, 9, 10, 11}};
+			g.addEdge(c++,1,2);g.addEdge(c++,1,4);g.addEdge(c++,1,5);
+			g.addEdge(c++,2,3);g.addEdge(c++,2,4);g.addEdge(c++,2,5);
+			g.addEdge(c++,3,4);g.addEdge(c++,4,5);
+			g.addEdge(c++,6,7);g.addEdge(c++,6,8);g.addEdge(c++,7,8);
+			g.addEdge(c++,8,9);
+			g.addEdge(c++,9,10);g.addEdge(c++,9,11);g.addEdge(c++,10,11);
+			dataset.addPartitioingAttribute("V", createClusteringFromArray(new int [][]{{1, 2, 3 ,4 ,5 },{6 ,7, 8},{9 ,10 ,11}}));
+			dataset.addPartitioingAttribute("U1", createClusteringFromArray(new int [][]{{1 ,2 ,3 ,4, 5}, {6, 7 ,8, 9, 10, 11}}));
+			dataset.addPartitioingAttribute("U2", createClusteringFromArray(new int [][]{{1 ,2 ,3},{6, 7 ,8},{4, 5, 9, 10, 11}}));
 			break;
 		default:
 			break;
@@ -93,7 +105,18 @@ public class DatasetUtils{
 		return dataset;
 
 	}
-	
+	public static Vector< Set<Integer>> createClusteringFromArray(int[][] aa){
+		Vector<Set<Integer>> clus = new Vector<Set<Integer>>(); 
+
+		for (int[] a : aa) {
+			Set<Integer> c = new HashSet<Integer>();
+			for (int i : a) {
+				c.add(i);
+			}
+			clus.add(c);
+		}
+		return clus;
+	}
 	
 	public static Vector<GraphDataSet<Integer, Integer>> loadAllClassics(){
 		Vector<GraphDataSet<Integer, Integer>> datasets = new Vector<GraphDataSet<Integer, Integer>>();
@@ -113,11 +136,15 @@ public class DatasetUtils{
 				System.err.println("loading " + network.getName()+"...");
 //				System.err.println(network.getName());
 //				System.err.println(graphReader);
-				GraphDataSet<V, E> dataSet = new GraphDataSet<V, E>(network.getName());
+				final GraphDataSet<V, E> dataSet = new GraphDataSet<V, E>(network.getName());
 				dataSet.graph = graphReader.readGraph(fgraph);
 				dataSet.weights= graphReader.getWeights();
 				dataSet.attributes = graphReader.getNodeAttributes();
-				
+				dataSet.labels_vertices = graphReader.getLabels_vertices();
+				Transformer<String, V> vertexTransformer = new Transformer<String, V>() {
+					public V transform(String arg0) {
+					return dataSet.labels_vertices.get(arg0);
+				}};
 				//Read GT if exists
 				{
 					String filename = network.getPath();
@@ -133,12 +160,12 @@ public class DatasetUtils{
 //					new Transformer
 					if (gt.exists()){
 //						System.err.println("  is here  ");
-						final Map<String, V> Labels_vertices = graphReader.getLabels_vertices();
-						Transformer<String, V> vertexTransformer = new Transformer<String, V>() {
-							public V transform(String arg0) {
-								return Labels_vertices.get(arg0);
-							}
-						};
+//						final Map<String, V> Labels_vertices = graphReader.getLabels_vertices();
+//						Transformer<String, V> vertexTransformer = new Transformer<String, V>() {
+//							public V transform(String arg0) {
+//								return Labels_vertices.get(arg0);
+//							}
+//						};
 						Grouping<V> groundT = (new PairGrouingReader<V>(false)).
 								readPartitioning(new FileInputStream(gt),vertexTransformer);
 						System.err.println("> found ground-truth with "+groundT.getNumberOfGroups()+" clusters for " + filename);
@@ -147,12 +174,12 @@ public class DatasetUtils{
 					 gt = new File(filename+".lgt");
 					if (gt.exists()){
 //						System.err.println("  is here  ");
-						final Map<String, V> Labels_vertices = graphReader.getLabels_vertices();
-						Transformer<String, V> vertexTransformer = new Transformer<String, V>() {
-							public V transform(String arg0) {
-								return Labels_vertices.get(arg0);
-							}
-						};
+//						final Map<String, V> Labels_vertices = graphReader.getLabels_vertices();
+//						Transformer<String, V> vertexTransformer = new Transformer<String, V>() {
+//							public V transform(String arg0) {
+//								return Labels_vertices.get(arg0);
+//							}
+//						};
 						Grouping<V> groundT = (new ListGrouingReader<V>()).
 								readPartitioning(new FileInputStream(gt),vertexTransformer);
 						System.err.println("> found ground-truth with "+groundT.getNumberOfGroups()+" clusters for " + filename);
@@ -192,9 +219,14 @@ public class DatasetUtils{
 			@Override
 			public GraphDataSet<V, E> next() {
 				GraphDataSet<V, E> dataset = null;
-				while (hasNext() && (dataset==null || dataset.graph.getEdgeCount()>MAX_EDGE_LIMIT )){	
-					dataset =  DatasetUtils.<V,E>load(datasets.get(index));
-					index++;
+				while (hasNext() && (dataset==null || dataset.graph.getEdgeCount()>MAX_EDGE_LIMIT )){
+					try{
+						dataset = DatasetUtils.<V,E>load(datasets.get(index));
+						index++;
+					}catch(Exception e){
+						System.err.println("Could not read " + datasets.get(index-1));
+//						e.printStackTrace();
+					}
 				}
 				return dataset;
 			}
@@ -207,31 +239,25 @@ public class DatasetUtils{
 	public static <V,E> Vector<GraphDataSet<V, E>> loadAllDataSets(File directory){
 		Vector<GraphDataSet<V, E>> datasets = new Vector<GraphDataSet<V, E>>();
 		for (File file : loadAllNames(directory)) {
-			GraphDataSet<V, E> dataSet = DatasetUtils.<V,E>load(file);
+			GraphDataSet<V, E> dataSet=null;
+			try{
+				dataSet = DatasetUtils.<V,E>load(file);
+			}catch(Exception e){
+				System.err.println("Could not read " + file);
+				e.printStackTrace();
+			}
 			if (dataSet!=null ) datasets.add(dataSet);
 		}
-//		System.err.println(directory + " can reaD? " +directory.canRead());
-//		for (File network : directory.listFiles())  
-//			if(network.isFile()){
-//				GraphDataSet<V, E> dataSet = DatasetUtils.<V,E>load(network);
-//				if (dataSet!=null ) datasets.add(dataSet);
-//			}else if(network.isDirectory()){
-//				datasets.addAll(DatasetUtils.<V,E>loadAllDataSets(network));
-//			}
-//		Collections.sort(datasets, new Comparator<GraphDataSet<V, E>>(){
-//			@Override
-//			public int compare(GraphDataSet<V, E> o1, GraphDataSet<V, E> o2) {
-//				return o1.name.compareTo(o2.name);
-//			}});
 		return datasets;
 	}
 	public static  Vector<File> loadAllNames(File directory){
 		Vector<File> datasets = new Vector<File>();
-		System.err.println(directory + " can reaD? " +directory.canRead());
+		if (!directory.canRead()) {
+			System.err.println(" Can not read " + directory );
+			return datasets;
+		}
 		for (File network : directory.listFiles())  
 			if(network.isFile()){
-//				GraphDataSet<V, E> dataSet = DatasetUtils.<V,E>load(network);
-//				if (dataSet!=null ) 
 					datasets.add(network);
 			}else if(network.isDirectory()){
 				datasets.addAll(DatasetUtils.loadAllNames(network));
@@ -244,13 +270,6 @@ public class DatasetUtils{
 //			}});
 		return datasets;
 	}
-	
-	
-//	public static GraphDataSet<Integer, Integer> loadFacebook(boolean weighted){
-	//	path ="../Datasets/facebook100/facebook100/"
-//			dataset.name = "Facebook";
-//			dataset.graph = reader.readGraph(
-	
 	
 	private static void convertKaratewithCommunitiestoGML(){
 		// Convert wkarate.pairs to gml
@@ -292,12 +311,10 @@ public class DatasetUtils{
 	
 	
 	public static void main(String[] args) {
-//		convertKaratewithCommunitiestoGML();
-//		for (GraphDataSet<Integer, Integer> dataset : ClassicDatasetLoader.loadAllClassics()) {//"../Datasets/facebook100/facebook100/"
-		for (GraphDataSet<Integer, Integer> dataset : DatasetUtils.<Integer,Integer>loadAllDataSets("../Datasets/classics/")) {
-			//		GraphDataSet<Integer, Integer> dataset = ClassicDatasetLoader.loadClassic(ClassicDataset.wkarate);
+		for (GraphDataSet<Integer, Integer> dataset : DatasetUtils.<Integer,Integer>loadAllDataSets("./Datasets/classics")) {
 			dataset.printStats();;
 		}
+//		convertKaratewithCommunitiestoGML();
 	}
 
 }

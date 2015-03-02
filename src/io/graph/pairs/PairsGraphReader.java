@@ -30,7 +30,7 @@ public  class PairsGraphReader<V,E> extends GraphInputStream<V, E>{
 		int edgeIds = 1;
 		
 		String tmp =  br.readLine() , l1,l2, w;
-		while( tmp!=null){
+		while( tmp!=null && tmp.length()>0){
 			tmp = tmp.trim();
 			w = null;
 			

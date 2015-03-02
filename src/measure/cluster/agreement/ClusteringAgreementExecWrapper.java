@@ -30,7 +30,7 @@ public abstract class ClusteringAgreementExecWrapper<V> extends ClusteringAgreem
 		String name = this.toString(), path = "./temp";
 		new File(path).mkdir();
 		
-		Map<V, Integer> vertexLabels = new HashMap<V, Integer>();
+		Map<V, String> vertexLabels = new HashMap<V, String>();
 		final Vector<V> vertexes = new Vector<V>();
 		for(Set<V> c:U)
 			vertexes.addAll(c);
@@ -38,7 +38,7 @@ public abstract class ClusteringAgreementExecWrapper<V> extends ClusteringAgreem
 			vertexes.addAll(c);
 		
 		for(int i = 0; i< vertexes.size(); i++){
-			vertexLabels.put(vertexes.elementAt(i), i+startIndexId);
+			vertexLabels.put(vertexes.elementAt(i), ""+i+startIndexId);
 		}
 		
 		GroupingWriter<V> groupingWriter = new ListGroupingWriter<>();
@@ -73,7 +73,7 @@ public abstract class ClusteringAgreementExecWrapper<V> extends ClusteringAgreem
 	
 	protected synchronized String runExecCommandAndGrabFromSTO(String command, String grabIndicator) throws IOException, InterruptedException{
 		String result=null;
-		System.out.println(command);
+//		System.out.println(command);
 		Process child = Runtime.getRuntime().exec(command);
 		Scanner sc = new Scanner(child.getInputStream());    		
 		String output ;

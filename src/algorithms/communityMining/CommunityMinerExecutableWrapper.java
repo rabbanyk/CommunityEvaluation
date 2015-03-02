@@ -19,17 +19,18 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 
 import algorithms.communityMining.data.Grouping;
-import algorithms.communityMining.methods.Donetti;
-import algorithms.communityMining.methods.FastModularity;
-import algorithms.communityMining.methods.Louvain;
-import algorithms.communityMining.methods.PottsModel;
-import algorithms.communityMining.methods.WalkTrap;
-import algorithms.topleaders.Partitioning;
+import algorithms.communityMining.exernal_methods.Donetti;
+import algorithms.communityMining.exernal_methods.FastModularity;
+import algorithms.communityMining.exernal_methods.Louvain;
+import algorithms.communityMining.exernal_methods.PottsModel;
+import algorithms.communityMining.exernal_methods.WalkTrap;
+import algorithms.dev_topleaders.Partitioning;
 import edu.uci.ics.jung.algorithms.filters.VertexPredicateFilter;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
@@ -89,7 +90,9 @@ public abstract class CommunityMinerExecutableWrapper<V,E> extends CommunityMine
 			outputStream.flush();
 			outputStream.close();
 		}
-		child.waitFor();
+		if(!child.waitFor(1, TimeUnit.HOURS)) {
+			child.destroy(); 
+		}
 		sc.close();
 		sc = new Scanner(child.getErrorStream());    		
 		while (sc.hasNext()){

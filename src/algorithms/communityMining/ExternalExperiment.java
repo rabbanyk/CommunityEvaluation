@@ -32,7 +32,7 @@ import io.graph.gml.GMLGraphWriter;
 import algorithms.AlgorithmUtils;
 import algorithms.AlgorithmUtils.Method;
 import algorithms.communityMining.data.Grouping;
-import algorithms.topleaders.Partitioning;
+import algorithms.dev_topleaders.Partitioning;
 import data.GraphDataSet;
 import edu.uci.ics.jung.algorithms.metrics.Metrics;
 import edu.uci.ics.jung.graph.Graph;

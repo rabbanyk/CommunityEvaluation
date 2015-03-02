@@ -35,7 +35,7 @@ import org.apache.commons.collections15.Transformer;
 
 import algorithms.communityMining.TopLeaders;
 import algorithms.communityMining.data.Grouping;
-import algorithms.topleaders.Partitioning;
+import algorithms.dev_topleaders.Partitioning;
 import edu.uci.ics.jung.graph.Graph;
 
 /**

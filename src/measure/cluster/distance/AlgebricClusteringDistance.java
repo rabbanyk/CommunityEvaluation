@@ -10,6 +10,7 @@ import measure.cluster.agreement.test;
 import org.apache.commons.collections15.Transformer;
 import org.python.modules.math;
 
+import util.DatasetUtils;
 import data.AbstractMatrix;
 import data.AbstractVector;
 import data.LambertW;
@@ -429,9 +430,9 @@ public class AlgebricClusteringDistance {
 //	
 	
 	public void test (){
-		Vector<Set<Integer>> groundTruth = test.createClusteringFromArray(new int[][]{ {0,1,2,3},{4,5,6}});
-		Vector<Set<Integer>> p1 =  test.createClusteringFromArray(new int[][]{ {0,1,2},{3,4,5,6}});
-		Vector<Set<Integer>> p2 =  test.createClusteringFromArray(new int[][]{ {0},{1,2,3,4,5,6}});
+		Vector<Set<Integer>> groundTruth = DatasetUtils.createClusteringFromArray(new int[][]{ {0,1,2,3},{4,5,6}});
+		Vector<Set<Integer>> p1 =  DatasetUtils.createClusteringFromArray(new int[][]{ {0,1,2},{3,4,5,6}});
+		Vector<Set<Integer>> p2 =  DatasetUtils.createClusteringFromArray(new int[][]{ {0},{1,2,3,4,5,6}});
 
 		for (ClusteringAgreement<Integer> meas : MeasuresUtil.<Integer>getAgreementAlternatives()) {
 //			System.err.println(meas + "(t,t) =" +meas.getAgreement(t, t));

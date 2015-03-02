@@ -4,9 +4,10 @@ import java.util.Set;
 
 import org.apache.commons.collections15.Transformer;
 
-import algorithms.topleaders.CommunityMiner;
-import algorithms.topleaders.Partitioning;
-import algorithms.topleaders.local.LocalTopLeader;
+import util.Statistics;
+import algorithms.dev_topleaders.CommunityMiner;
+import algorithms.dev_topleaders.Partitioning;
+import algorithms.dev_topleaders.local.LocalTopLeader;
 import edu.uci.ics.jung.graph.Graph;
 
 /**
@@ -54,37 +55,7 @@ public class LocalTopLeaders<V,E> extends CommunityMiner<V, E> {
 	}
 
 	
-	private double[] avgCluteringCoefficient(Graph<V,E> graph){
-		double cc = 0, varCC=0;
-		for (V v:graph.getVertices()){
-			double cv = 0;
-			for(V n1: graph.getNeighbors(v)){
-				for(V n2: graph.getNeighbors(v)){
-					if(n1!=n2 && graph.findEdge(n1, n2)!=null)
-						cv++;
-				}
-			}
-			if(cv!=0)
-				cv/= graph.degree(v) * (graph.degree(v)-1);
-			cc += cv;
-			varCC += cv*cv;
-		}
-		cc/=graph.getVertexCount();
-		varCC =Math.sqrt( varCC/graph.getVertexCount() - cc*cc);
-	//	System.err.println(cc);
-		return new double[]{cc,varCC};
-	}
-
-	private double[] getAverageDegree(Graph<V,E> graph){
-		double avgD = 0 , varD=0;
-		for (V v:graph.getVertices()){
-			avgD += graph.degree(v);
-			varD += graph.degree(v) * graph.degree(v);
-		}
-		avgD /= graph.getVertexCount();
-		varD = Math.sqrt(varD/graph.getVertexCount() - avgD*avgD);
-		return new double[]{avgD,varD};
-	}
+	
 	
 	private double[] guessLocalParamsBasedOnGraph(Graph<V,E> graph){
 		//double outlierThereshod, double hubThreshold, double minCommunitySizeThreshold,double centersClosenessThreshold
@@ -101,7 +72,7 @@ public class LocalTopLeaders<V,E> extends CommunityMiner<V, E> {
 		
 		
 		
-		double[] cluC = avgCluteringCoefficient(graph), deg = getAverageDegree(graph);
+		double[] cluC = Statistics.avgCluteringCoefficient(graph), deg = Statistics.getAverageDegree(graph);
 		System.err.println("density: " + 2.*m/(n*(n-1)) +", cc: "+cluC[0]  +" +- "+ cluC[1] +", d: "+ deg[0] +" +- "+ deg[1]);
 		
 	//	outlierThereshod = 1-cluC;

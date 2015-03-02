@@ -1,4 +1,4 @@
-package algorithms.topleaders.global;
+package algorithms.dev_topleaders.global;
 
 import static io.Logger.logln;
 import io.Logger.DebugMode;
@@ -14,6 +14,7 @@ import java.util.Vector;
 //import static io.Logger.*;
 
 
+
 import measure.base.Proximity;
 import measure.graph.GraphCentralityBasedMedoid;
 import measure.graph.centrality.ClusteringDegree;
@@ -27,7 +28,7 @@ import measure.graph.distance.ShortestPath;
 
 import org.apache.commons.collections15.Transformer;
 
-import algorithms.topleaders.Partitioning;
+import algorithms.dev_topleaders.Partitioning;
 import edu.uci.ics.jung.algorithms.filters.FilterUtils;
 import edu.uci.ics.jung.graph.Graph;
 

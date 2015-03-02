@@ -1,11 +1,20 @@
 package measure.cluster.agreement;
 
+import io.group.GroupingWriter;
+import io.group.ListGroupingWriter;
+
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
 import util.DatasetUtils;
 import util.DatasetUtils.DummyDataset;
+import util.IOUtils;
+import data.GraphDataSet;
 import data.Pair;
 import measure.MeasuresUtil;
 import measure.cluster.agreement.partitioning.PartiotioningAgreement;
@@ -39,18 +48,7 @@ public class test {
 		}
 		return c;
 	}
-	public static Vector< Set<Integer>> createClusteringFromArray(int[][] aa){
-		Vector<Set<Integer>> clus = new Vector<Set<Integer>>(); 
-
-		for (int[] a : aa) {
-			Set<Integer> c = new HashSet<Integer>();
-			for (int i : a) {
-				c.add(i);
-			}
-			clus.add(c);
-		}
-		return clus;
-	}
+	
 	
 	public static void testAltenativeImplementations(){
 		Vector<Set<Integer>> p1 = new Vector<Set<Integer>>(); 
@@ -115,12 +113,19 @@ public class test {
 	}
 	
 	public static void graphExample(){
-		Vector<Set<Integer>> groundTruth = createClusteringFromArray(new int[][]{ {0,1,2,3,4,5},{6,7,8}});
-		Vector<Set<Integer>> p1 = createClusteringFromArray(new int[][]{ {1,2,3,4,5},{0,6,7,8}});
-		Vector<Set<Integer>> p2 = createClusteringFromArray(new int[][]{ {0,1,2,3,4},{5,6,7,8}});
+		System.err.println("Graph Example");
+		GraphDataSet<Integer, Integer> dataset = DatasetUtils.loadDummy(DummyDataset.Structure);
+		Graph<Integer, Integer> g =  dataset.graph;
+		Vector<Set<Integer>> groundTruth = dataset.getGrouping("V").getGroups();//DatasetUtils.createClusteringFromArray(new int[][]{ {0,1,2,3,4,5},{6,7,8}});
+		Vector<Set<Integer>> p1 = dataset.getGrouping("U1").getGroups();//DatasetUtils.createClusteringFromArray(new int[][]{ {1,2,3,4,5},{0,6,7,8}});
+		Vector<Set<Integer>> p2 = dataset.getGrouping("U2").getGroups();//DatasetUtils.createClusteringFromArray(new int[][]{ {0,1,2,3,4},{5,6,7,8}});
 		
-		Graph<Integer, Integer> g =  DatasetUtils.loadDummy(DummyDataset.Structure).graph;
-		
+		for (ClusteringAgreement<Integer> meas : MeasuresUtil.<Integer,Integer>getAgreements(dataset, null)) {
+			System.err.println(meas.toLatexString());
+			System.err.println(meas + "(V,V) =" +meas.getAgreement(groundTruth, groundTruth));
+			System.err.println(meas + "(U1,V) =" +meas.getAgreement(p1, groundTruth));
+			System.err.println(meas + "(U2,V) =" + (meas.getAgreement(p2, groundTruth)));
+		}
 		
 		for (ClusteringAgreement<Integer> meas : MeasuresUtil.<Integer,Integer>getAgreementAlternatives(g, null)) {
 			System.err.println(meas + "(V,V) =" +meas.getAgreement(groundTruth, groundTruth));
@@ -142,16 +147,11 @@ public class test {
 	}
 	
 	public static void omegaExample(){
-		Vector<Set<Integer>> groundTruth = createClusteringFromArray(new int[][]{ {0,3,4},{1,2,3},{2,3,4}});
-		Vector<Set<Integer>> p1 = createClusteringFromArray(new int[][]{ {0,3,4},{1},{2}});
-		Vector<Set<Integer>> p2 = createClusteringFromArray(new int[][]{ {0,3,4},{1},{2,3}});
-//	        		  U = np.array([[1,0,0],[0,1,0],[0,1,1],[1,1,1],[1,0,1]])
-//	        		    V1 = np.array([[1,0,0],[0,1,0],[0,0,1],[1,0,0],[1,0,0]])
-//	        		    V2 = np.array([[1,0,0],[0,1,0],[0,0,1],[1,0,1],[1,0,0]])
-	        		   
-	
-		Graph<Integer, Integer> g =  DatasetUtils.loadDummy(DummyDataset.Omega).graph;
-		
+	GraphDataSet<Integer, Integer> dataset = DatasetUtils.loadDummy(DummyDataset.Omega);
+	Graph<Integer, Integer> g =  dataset.graph;
+	Vector<Set<Integer>> groundTruth = dataset.getGrouping("V").getGroups();
+	Vector<Set<Integer>> p1 = dataset.getGrouping("U1").getGroups();
+	Vector<Set<Integer>> p2 = dataset.getGrouping("U2").getGroups();
 		
 		for (ClusteringAgreement<Integer> meas : MeasuresUtil.<Integer,Integer>getAgreementAlternatives(g, null)) {
 			System.err.println(meas + "(V,V) =" +meas.getAgreement(groundTruth, groundTruth));
@@ -178,9 +178,9 @@ public class test {
 //		Vector<Set<Integer>> groundTruth = createClusteringFromArray(new int[][]{ {1,2,3,4,5},{6,7,8},{9,10,11}});
 //		Vector<Set<Integer>> p1 = createClusteringFromArray(new int[][]{ {1,2,3,4,5},{6,7,8,9,10,11}});
 //		Vector<Set<Integer>> p2 = createClusteringFromArray(new int[][]{ {1,2,3},{6,7,8},{4,5,9,10,11}});
-		Vector<Set<Integer>> groundTruth = createClusteringFromArray(new int[][]{ {0,1,2,3,4,5},{6,7,8}});
-		Vector<Set<Integer>> p1 = createClusteringFromArray(new int[][]{ {1,2,3,4,5},{0,6,7,8}});
-		Vector<Set<Integer>> p2 = createClusteringFromArray(new int[][]{ {1,2,3,4},{5,6,7,8}});
+		Vector<Set<Integer>> groundTruth = DatasetUtils.createClusteringFromArray(new int[][]{ {0,1,2,3,4,5},{6,7,8}});
+		Vector<Set<Integer>> p1 = DatasetUtils.createClusteringFromArray(new int[][]{ {1,2,3,4,5},{0,6,7,8}});
+		Vector<Set<Integer>> p2 = DatasetUtils.createClusteringFromArray(new int[][]{ {1,2,3,4},{5,6,7,8}});
 //		Vector<Set<Integer>> t = createClusteringFromArray(new int[][]{ {1,2,3,4,5},{4,5,6,7,8}});
 		
 		// Melia example
@@ -259,16 +259,23 @@ public class test {
 	}
 	
 	public static void setmatching_example(){
-		Vector<Set<Integer>> V = createClusteringFromArray(new int [][]{{1, 2, 3 ,4 ,5 },{6 ,7, 8},{9 ,10 ,11}});
-		Vector<Set<Integer>> U1 = createClusteringFromArray(new int [][]{{1 ,2 ,3 ,4, 5}, {6, 7 ,8, 9, 10, 11}});
-		Vector<Set<Integer>>  U2 = createClusteringFromArray(new int [][]{{1 ,2 ,3},{6, 7 ,8},{4, 5, 9, 10, 11}});
+		GraphDataSet<Integer, Integer> dataset = DatasetUtils.loadDummy(DummyDataset.NMIexample);
+		Graph<Integer, Integer> g =  dataset.graph;
 		
+		
+		Vector<Set<Integer>> V = dataset.getGrouping("V").getGroups();
+		Vector<Set<Integer>> U1 = dataset.getGrouping("U1").getGroups();
+		Vector<Set<Integer>> U2 = dataset.getGrouping("U2").getGroups();
+			
 		ClusteringAgreement<Integer> onmi = new NMI_Overlapping_MacDaid<>();
 		System.err.println("-- "+onmi.getAgreement(U1, V));
 		System.err.println("-- "+onmi.getAgreement(U2, V));
-		ClusteringAgreement<Integer> onmi2 = new NMI_Overlapping_LFR<>();
-		System.err.println("-- "+onmi2.getAgreement(U1, V));
-		System.err.println("-- "+onmi2.getAgreement(U2, V));
+////		ClusteringAgreement<Integer> onmi2 = new NMI_Overlapping_LFR<>();
+////		System.err.println("-- "+onmi2.getAgreement(U1, V));
+////		System.err.println("-- "+onmi2.getAgreement(U2, V));
+//		
+		
+		
 	}
 	
 	
@@ -283,8 +290,8 @@ public class test {
 //		testExamples();
 //		testAltenativeImplementations();
 //		graphExample();
-		omegaExample();
-//		setmatching_example();
+//		omegaExample();
+		setmatching_example();
 	}
 
 

@@ -1,4 +1,4 @@
-package algorithms.topleaders.local;
+package algorithms.dev_topleaders.local;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +14,7 @@ import measure.graph.distance.ICloseness;
 
 import org.apache.commons.collections15.Transformer;
 
-import algorithms.topleaders.Partitioning;
+import algorithms.dev_topleaders.Partitioning;
 import edu.uci.ics.jung.graph.Graph;
 
 public class LocalTopLeader<V,E> implements Transformer<Graph<V, E>, Partitioning<V>>  {

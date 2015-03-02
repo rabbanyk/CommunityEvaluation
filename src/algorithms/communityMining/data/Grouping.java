@@ -9,7 +9,7 @@ import java.util.Vector;
 
 import org.apache.commons.collections15.Transformer;
 
-import algorithms.topleaders.Partitioning;
+import algorithms.dev_topleaders.Partitioning;
 
 public  class Grouping <V> {
 	Vector<Set<V>> groups;
@@ -34,14 +34,38 @@ public  class Grouping <V> {
 	}
 	
 	public void removeEmptyGroups(){
+		this.removeGroupsSmallerThan(1);
+//		Vector<Set<V>> tmp = new Vector<Set<V>>();
+//		for (Set<V> set : groups) {
+//			if(set.size()>0) tmp.add(set);
+//		}
+//		groups = tmp;
+	}
+	public void removeGroupsSmallerThan(int minSize){
 		Vector<Set<V>> tmp = new Vector<Set<V>>();
 		for (Set<V> set : groups) {
-			if(set.size()>0) tmp.add(set);
+			if(set.size()>=minSize) tmp.add(set);
 		}
 		groups = tmp;
 	}
 	public Vector<Set<V>> getGroups() {
-		return groups;
+		return (Vector<Set<V>> )groups.clone();
+	}
+	public Set<V> getDataPoints() {
+		Set<V> res = new HashSet<V>();
+		for (Set<V> set : groups) {
+//			System.err.println(set.size());
+			res.addAll(set);
+		}
+		return res;
+	}
+
+	public int getNumberOfGroupsOfSizeAtLeast( int minSize){
+		int res = 0;
+		for (Set<V> set : groups) {
+			if (set.size()>=minSize) res++;
+		}
+		return res;
 	}
 
 	public int getNumberOfGroups(){

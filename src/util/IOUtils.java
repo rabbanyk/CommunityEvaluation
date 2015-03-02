@@ -13,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.collections15.Factory;
 import org.xml.sax.SAXException;
 
+import algorithms.communityMining.data.Grouping;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.io.GraphMLReader;
@@ -22,6 +23,8 @@ import io.graph.gml.GMLGraphWriter;
 import io.graph.pairs.PairsGraphReader;
 import io.graph.pajek.PajekGraphReader;
 import io.group.GroupingReader;
+import io.group.GroupingWriter;
+import io.group.ListGroupingWriter;
 import io.group.PairGrouingReader;
 
 public class IOUtils  {
@@ -53,6 +56,9 @@ public class IOUtils  {
 //		if (! new File(filename+".gt").exists()) return null;
 //		return new PairGrouingReader<V>(true);
 //	}
+	
+	
+	
 	
 	@SuppressWarnings("unchecked")
 	public static <V,E> GraphInputStream<V, E> getReader (Type type){
@@ -98,4 +104,16 @@ public class IOUtils  {
 		graphWriter.writeGraph(path, graph ,vertex_Ids, 
 				weights, weightsOutputFormat ,vertex_attributes);
 	}
+	
+	public static<V> void writeListGrouping(String path , Grouping<V> U, Map<V, String> vertex_labels) throws IOException {
+		GroupingWriter<V> groupingWriter = new ListGroupingWriter<>();
+		groupingWriter.writeGrouping(path , U, vertex_labels); 
+	}
+	
+	
+	
+	
+	
+	
+	
 }

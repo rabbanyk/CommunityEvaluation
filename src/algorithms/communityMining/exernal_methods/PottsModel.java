@@ -1,4 +1,4 @@
-package algorithms.communityMining.methods;
+package algorithms.communityMining.exernal_methods;
 
 import io.graph.gml.GMLGraphWriter;
 import io.group.GroupingReader;

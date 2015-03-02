@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import org.apache.commons.collections15.Transformer;
 
 import static io.Logger.*;
-import algorithms.topleaders.CommunityMiner;
-import algorithms.topleaders.Partitioning;
-import algorithms.topleaders.global.GlobalTopLeaders;
-import algorithms.topleaders.local.LocalTopLeader;
+import algorithms.dev_topleaders.CommunityMiner;
+import algorithms.dev_topleaders.Partitioning;
+import algorithms.dev_topleaders.global.GlobalTopLeaders;
+import algorithms.dev_topleaders.local.LocalTopLeader;
 import edu.uci.ics.jung.graph.Graph;
 
 
