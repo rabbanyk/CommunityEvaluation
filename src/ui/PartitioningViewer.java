@@ -33,9 +33,9 @@ import measure.graph.criteria.Modularity;
 
 import org.apache.commons.collections15.Transformer;
 
-import algorithms.communityMining.TopLeaders;
 import algorithms.communityMining.data.Grouping;
-import algorithms.dev_topleaders.Partitioning;
+import algorithms.communityMining.topleaders.TopLeaders;
+import algorithms.communityMining.topleaders.dev_.Partitioning;
 import edu.uci.ics.jung.graph.Graph;
 
 /**
@@ -144,7 +144,7 @@ public class PartitioningViewer extends JApplet{
 		int max = 0;
 		Modularity<Integer, Integer> modularity = new Modularity<Integer, Integer> (graph);
 		for (int i = 0; i < 4; i++) {
-			vector.add(topLeaders.findCommunities(graph, i+2).getCommunities());
+			vector.add(topLeaders.findCommunities(i+2,graph, null).getGroups());
 			if(modularity.evaluate(vector.get(i)) >= modularity.evaluate(vector.get(max))) max = i;
 		}
 		//Partitioning< Integer> partitioning = groundTruth;//localLeader.transform(graph);

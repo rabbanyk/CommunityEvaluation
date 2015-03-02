@@ -1,4 +1,4 @@
-package algorithms.communityMining;
+package dev_Experiments;
 
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -31,8 +31,9 @@ import util.DatasetUtils.ClassicDataset;
 import io.graph.gml.GMLGraphWriter;
 import algorithms.AlgorithmUtils;
 import algorithms.AlgorithmUtils.Method;
+import algorithms.communityMining.CommunityMiner;
 import algorithms.communityMining.data.Grouping;
-import algorithms.dev_topleaders.Partitioning;
+import algorithms.communityMining.topleaders.dev_.Partitioning;
 import data.GraphDataSet;
 import edu.uci.ics.jung.algorithms.metrics.Metrics;
 import edu.uci.ics.jung.graph.Graph;

@@ -1,4 +1,4 @@
-package algorithms.communityMining.exernal_methods;
+package algorithms.communityMining.external_methods;
 
 import io.graph.GraphOutputStream;
 import io.graph.pairs.PairsGraphWriter;
@@ -14,7 +14,6 @@ import java.util.Set;
 
 import org.apache.commons.collections15.Transformer;
 
-import algorithms.communityMining.CommunityMinerExecutableWrapper;
 import algorithms.communityMining.data.Grouping;
 
 /**

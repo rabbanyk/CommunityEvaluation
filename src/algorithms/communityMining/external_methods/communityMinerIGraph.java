@@ -1,4 +1,4 @@
-package algorithms.communityMining;
+package algorithms.communityMining.external_methods;
 
 import io.graph.gml.GMLGraphWriter;
 import io.graph.pajek.PajekGraphWriter;

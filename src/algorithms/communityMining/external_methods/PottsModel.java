@@ -1,4 +1,4 @@
-package algorithms.communityMining.exernal_methods;
+package algorithms.communityMining.external_methods;
 
 import io.graph.gml.GMLGraphWriter;
 import io.group.GroupingReader;
@@ -14,7 +14,6 @@ import java.util.HashSet;
 import org.apache.commons.collections15.Transformer;
 
 import edu.uci.ics.jung.graph.Graph;
-import algorithms.communityMining.CommunityMinerExecutableWrapper;
 import algorithms.communityMining.data.Grouping;
 
 /**

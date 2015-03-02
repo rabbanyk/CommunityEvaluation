@@ -1,4 +1,4 @@
-package algorithms.communityMining.exernal_methods;
+package algorithms.communityMining.external_methods;
 
 import io.graph.GraphOutputStream;
 import io.graph.pairs.PairsGraphWriter;
@@ -15,7 +15,6 @@ import java.util.Vector;
 import org.apache.commons.collections15.Transformer;
 
 import edu.uci.ics.jung.graph.Graph;
-import algorithms.communityMining.CommunityMinerExecutableWrapper;
 
 public class AGM <V, E> extends CommunityMinerExecutableWrapper<V, E> {
 	String exePath ="./execs/CM-Overlapping-AGM-SNAP/agmfit/";

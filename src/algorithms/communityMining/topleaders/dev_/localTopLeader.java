@@ -1,4 +1,4 @@
-package algorithms.communityMining;
+package algorithms.communityMining.topleaders.dev_;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,8 +12,6 @@ import java.util.Vector;
 //import org.ujmp.core.doublematrix.calculation.entrywise.basic.Power;
 
 
-
-import algorithms.dev_topleaders.Partitioning;
 import edu.uci.ics.jung.algorithms.scoring.DegreeScorer;
 import edu.uci.ics.jung.algorithms.scoring.VertexScorer;
 import edu.uci.ics.jung.graph.Graph;
@@ -69,9 +67,17 @@ public class localTopLeader<V,E> {
 						resultPartitioning.getHubs().remove(v);
 					}
 				}
+				
+				
 //				System.out.println(seed);
 //				System.out.println(followers);
 			}else {
+				
+				if(seed.toString().equals("151")) {
+					System.err.println(memberships);
+					System.err.println("++++++++++++++++++++++++++++++++++");
+				}
+				
 				seeds.remove(seed);
 				
 				Community selfBelongness = null;
@@ -80,6 +86,11 @@ public class localTopLeader<V,E> {
 						selfBelongness = belongness;
 				} 
 			
+//				if(seed.toString().equals("5")) {
+//					System.err.println(memberships);
+//					System.err.println(resultPartitioning);
+//				}
+					
 				//Return to your previous commitment cheaters
 				for (V v : followers) {
 					memberships.get(v).remove(selfBelongness);
@@ -99,6 +110,8 @@ public class localTopLeader<V,E> {
 				}
 				
 			}
+
+		
 			seed = getNextSeed();
 		}
 		
@@ -245,6 +258,42 @@ public class localTopLeader<V,E> {
 		
 		return add;
 	}
+	
+	/*private  Vector<Pair<V,Double>> findLeaders(V v){
+		Vector<Pair<V,Double>> leaders = new Vector<Pair<V,Double>>();
+		
+		Vector<V> candidates = new Vector<V> ();
+		//bound it to be independent of the number of seeds in network
+		for (V n1 : getNeighbors(v).get(nodeNeighborhoodThreshold)){
+				for (V n2 : getNeighbors(n1).get(sourceNeighborhoodThreshold)) {
+					if(!candidates.contains(n2) && seeds.contains(n2) )
+						candidates.add(n2);
+				}
+			}
+		
+		double closest = -1;
+		for(V l : candidates){
+			double closeness = iCloseness(v, l);
+			if( closeness > closest && (closeness >= membershipThreshold)){
+				leaders.add(new Pair<V, Double>(l, closeness));
+				closest = closeness;
+				while(leaders.get(0).second + hubThreshold < closest){
+					leaders.remove(0);
+				}
+			}else if ( closeness + hubThreshold > closest){
+				int i = 0;
+				while(i<leaders.size()){
+					if(leaders.get(i).second > closeness) break;
+					i++;
+				}
+				leaders.add(0,new Pair<V, Double>(l, closeness));
+			}
+		}
+		
+		return leaders;
+	}
+*/
+	
 	private double density(Set<V> nodes){	
 		if(nodes.size() <=1)	return 0;
 		

@@ -9,7 +9,7 @@ import java.util.Vector;
 
 import org.apache.commons.collections15.Transformer;
 
-import algorithms.dev_topleaders.Partitioning;
+import algorithms.communityMining.topleaders.dev_.Partitioning;
 
 public  class Grouping <V> {
 	Vector<Set<V>> groups;
@@ -17,7 +17,10 @@ public  class Grouping <V> {
 	public Grouping(){
 		groups = new Vector<Set<V>>();
 	}
-
+	@SuppressWarnings("unchecked")
+	public Grouping(Vector<Set<V>> groups){
+		this.groups = (Vector<Set<V>>) groups.clone();
+	}
 	public Set<V> getGroup(int ind){
 		return groups.get(ind);
 	}

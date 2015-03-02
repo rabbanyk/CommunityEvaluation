@@ -1,4 +1,4 @@
-package algorithms.dev_topleaders.global;
+package algorithms.communityMining.topleaders.global;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -37,26 +37,26 @@ import io.graph.gml.GMLGraphWriter;
 import algorithms.AlgorithmUtils;
 import algorithms.AlgorithmUtils.Method;
 import algorithms.communityMining.data.Grouping;
-import algorithms.communityMining.exernal_methods.Donetti;
-import algorithms.communityMining.exernal_methods.FastModularity;
-import algorithms.communityMining.exernal_methods.Infomap;
-import algorithms.communityMining.exernal_methods.Louvain;
-import algorithms.communityMining.exernal_methods.PottsModel;
-import algorithms.communityMining.exernal_methods.WalkTrap;
-import algorithms.dev_topleaders.Partitioning;
+import algorithms.communityMining.external_methods.Donetti;
+import algorithms.communityMining.external_methods.FastModularity;
+import algorithms.communityMining.external_methods.Infomap;
+import algorithms.communityMining.external_methods.Louvain;
+import algorithms.communityMining.external_methods.PottsModel;
+import algorithms.communityMining.external_methods.WalkTrap;
+import algorithms.communityMining.topleaders.dev_.Partitioning;
 import data.GraphDataSet;
 import data.Pair;
 import dev_Experiments.ExternalIndexComparer;
 import dev_Experiments.ExternalIndexComparer.Mode;
 import edu.uci.ics.jung.graph.Graph;
 
-public class PKDD {
+public class CompareMethods {
 	DecimalFormat df = new DecimalFormat("#.###");
 	DateFormat formatter = new SimpleDateFormat("mm:ss:SSS");  
 	int missingValueIndicator = 0;
 	boolean doAlgebric = false;
-	boolean doMissingValueAsCluster=true,doMissingValueRemove=true,doMissingVlauesUntreated=true;
-	static boolean doCommunities = false;
+	boolean doMissingValueAsCluster=false,doMissingValueRemove=false,doMissingVlauesUntreated=true;
+	static boolean doCommunities = true;
 	
 	public static void main(String[] args){
 		String EXPNAME=".";
@@ -70,7 +70,7 @@ public class PKDD {
 //		"./exps/fbtest/";
 //		"./exps/realBenchmarks/";
 		if (args.length ==0)
-			args = new String[] {"/home/reihaneh/projects/exps/fbtest/com/" , "-a"};
+			args = new String[] {"/home/reihaneh/projects/exps/fbtest/data/" , "-a"};
 
 		if(args.length>0) EXPNAME = args[0];
 //		deleteDir(new File(EXPNAME));
@@ -113,7 +113,7 @@ public class PKDD {
 		}
 		Iterator<GraphDataSet<Integer, Integer>> datasets = DatasetUtils.<Integer,Integer>loadAll(EXPNAME);//+"data");
 
-		PKDD test = new PKDD();
+		CompareMethods test = new CompareMethods();
 		try {
 //			test.compareMethodsWithGT(datasets, EXPNAME, isOverlapping, doQ, doTrans);
 //			test.compareMethodsAllAtt(datasets, EXPNAME, isOverlapping, doQ, doTrans);
@@ -153,12 +153,12 @@ public class PKDD {
 
 		outResultsE.write( ("dataset,weights,#nodes,#edges,CM_alg,k"+ (doAtt?",att":"")).getBytes());
 		for (ClusteringAgreement<V> clusterAgreement :  MeasuresUtil.<V,E>getDisjointAgreements(new GraphDataSet<V, E>("dummy"))) {
-			if( doMissingValueAsCluster)
-				outResultsE.write(( ",MaC:" + clusterAgreement.toLatexString() ).getBytes());
-			if(doMissingValueRemove)
-				outResultsE.write(( ",Mre:" + clusterAgreement.toLatexString() ).getBytes());
 			if(doMissingVlauesUntreated)
 				outResultsE.write(( "," + clusterAgreement.toLatexString() ).getBytes());
+			if(doMissingValueRemove)
+				outResultsE.write(( ",Mre:" + clusterAgreement.toLatexString() ).getBytes());
+			if( doMissingValueAsCluster)
+				outResultsE.write(( ",MaC:" + clusterAgreement.toLatexString() ).getBytes());
 
 		}
 		if (doAlgebric)
@@ -178,19 +178,33 @@ public class PKDD {
 			int n  = dataset.graph.getVertexCount();
 			community_runtimes = new HashMap<>();
 			
+			//			if(att.equals("value")) groundth = attClustering;
+			Vector<String> atts = new Vector<String>();
+			if(dataset.attributes!=null && dataset.attributes.values().size()>0){
+				for (Object att : dataset.attributes.values().iterator().next().keySet() ){
+					String attName = att.toString().toLowerCase();
+					if(attName.equals("id") || attName.equals("label")) continue;
+					atts.add(attName);
+				}
+			}
+			
 			//Find All Communities
 			if (doCommunities){
 				for (CommunityMiner<V, E> communityMiner : AlgorithmUtils.<V, E>getSelectedCommunititMiners(isOverlapping)) {
 					System.err.println(">>  --  Method: " + communityMiner.getName());
+					if (atts.contains( communityMiner.getName().toLowerCase())) continue;
 	//				if(!community_names.contains(communityMiner.getName()))community_names.add(communityMiner.getName());
 					
 					startTime = System.currentTimeMillis();
 					Grouping<V> grouping =  communityMiner.findCommunities(dataset.graph, dataset.weights );
+					
 					community_runtimes.put(communityMiner.getName(),System.currentTimeMillis() - startTime);
 					System.err.println(">>  --  finished in: " +community_runtimes.get(communityMiner.getName()) +" milisecond");
 	
 					if(grouping==null || grouping.getNumberOfGroups()<1){
-						System.err.println("--------> ERROR :: "+communityMiner+" failed on dataset "+ dataset.name);
+						System.err.println("--------> ERROR :: "
+								+communityMiner+" failed on dataset "+ dataset.name + " resulted in " +
+								grouping);
 						continue;
 					}
 					System.err.print(">>  -- resulted in " + grouping.getNumberOfGroups()+	" clusters " );
@@ -202,15 +216,7 @@ public class PKDD {
 				}
 			}
 			//Do Evaluation
-//							if(att.equals("value")) groundth = attClustering;
-			Vector<String> atts = new Vector<String>();
-			if(dataset.attributes!=null && dataset.attributes.values().size()>0){
-				for (Object att : dataset.attributes.values().iterator().next().keySet() ){
-					String attName = att.toString().toLowerCase();
-					if(attName.equals("id") || attName.equals("label")) continue;
-					atts.add(attName);
-				}
-			}
+
 
 			//=================
 			for(String att: atts) {
@@ -237,6 +243,7 @@ public class PKDD {
 			//=================
 			for (String communityMiner : community_names) {
 				Grouping<V> groupingComm = dataset.getGrouping(communityMiner);
+				if (groupingComm.getNumberOfGroups()<=0) continue;
 				System.err.println(communityMiner+" with "+groupingComm.getNumberOfGroups());
 				for(String att: atts) if ( (doAtt || att.equals("value") ) && !community_names.contains(att)){
 					Grouping< V> groupingAtt = dataset.getGrouping(att,missingValueIndicator);

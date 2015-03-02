@@ -1,13 +1,13 @@
-package algorithms.communityMining;
+package algorithms.communityMining.topleaders;
 
 import java.util.Set;
 
 import org.apache.commons.collections15.Transformer;
 
 import util.Statistics;
-import algorithms.dev_topleaders.CommunityMiner;
-import algorithms.dev_topleaders.Partitioning;
-import algorithms.dev_topleaders.local.LocalTopLeader;
+import algorithms.communityMining.topleaders.dev_.CommunityMiner;
+import algorithms.communityMining.topleaders.dev_.Partitioning;
+import algorithms.communityMining.topleaders.local.LocalTopLeader;
 import edu.uci.ics.jung.graph.Graph;
 
 /**

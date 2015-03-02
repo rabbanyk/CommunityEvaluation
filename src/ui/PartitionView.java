@@ -35,7 +35,7 @@ import org.apache.commons.collections15.map.LazyMap;
 import org.python.modules.synchronize;
 
 import algorithms.communityMining.data.Grouping;
-import algorithms.dev_topleaders.Partitioning;
+import algorithms.communityMining.topleaders.dev_.Partitioning;
 import edu.uci.ics.jung.algorithms.layout.AggregateLayout;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;

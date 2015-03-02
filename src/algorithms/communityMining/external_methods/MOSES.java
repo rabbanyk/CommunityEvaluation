@@ -1,4 +1,4 @@
-package algorithms.communityMining.exernal_methods;
+package algorithms.communityMining.external_methods;
 
 import io.graph.pairs.PairsGraphWriter;
 import io.group.ListGrouingReader;
@@ -7,8 +7,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.apache.commons.collections15.Transformer;
-
-import algorithms.communityMining.CommunityMinerExecutableWrapper;
 
 /**
  * @author Reihaneh Rabbany (rabbanyk@ualberta.ca)

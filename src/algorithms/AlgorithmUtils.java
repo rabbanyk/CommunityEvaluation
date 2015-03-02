@@ -3,9 +3,9 @@ package algorithms;
 import java.util.Vector;
 
 import algorithms.communityMining.CommunityMiner;
-import algorithms.communityMining.communityMinerIGraph;
-import algorithms.communityMining.exernal_methods.*;
-import algorithms.communityMining.exernal_methods.Infomap.Version;
+import algorithms.communityMining.external_methods.*;
+import algorithms.communityMining.external_methods.Infomap.Version;
+import algorithms.communityMining.topleaders.TopLeaders;
 
 public class AlgorithmUtils {
 
@@ -83,9 +83,10 @@ public class AlgorithmUtils {
 	}
 	public  static < V, E> Vector<CommunityMiner< V, E>> getExecCommunititMiners (){
 		Vector<CommunityMiner<V, E>> communityMiners = new Vector<CommunityMiner<V,E>>();
-		communityMiners.add(new WalkTrap<V,E>());//
-		communityMiners.add(new Infomap<V,E>());//
-		communityMiners.add(new FastModularity<V,E>());//w 
+		communityMiners.add(new TopLeaders<V,E>());
+//		communityMiners.add(new WalkTrap<V,E>());//
+//		communityMiners.add(new Infomap<V,E>());//
+//		communityMiners.add(new FastModularity<V,E>());//w 
 		communityMiners.add(new Louvain<V,E>());//w
 //		communityMiners.add(new PottsModel<V,E>());//A bit slow
 //		communityMiners.add(new Donetti<V,E>()); needs a parameter, otherwise performs poorly

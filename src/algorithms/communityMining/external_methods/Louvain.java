@@ -1,4 +1,4 @@
-package algorithms.communityMining.exernal_methods;
+package algorithms.communityMining.external_methods;
 
 import io.graph.pairs.PairsGraphWriter;
 import io.group.PairGrouingReader;
@@ -16,7 +16,6 @@ import data.GraphDataSet;
 import algorithms.AlgorithmUtils;
 import algorithms.AlgorithmUtils.Method;
 import algorithms.communityMining.CommunityMiner;
-import algorithms.communityMining.CommunityMinerExecutableWrapper;
 import algorithms.communityMining.data.Grouping;
 
 /**

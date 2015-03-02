@@ -62,16 +62,15 @@ public class MeasuresUtil {
 		Vector<Proximity<V>> distances = getGraphDistanceAlternatives(graph, weights);
 		for (Proximity<V> distanceMethod: distances ) {
 			Centroid<V> centroidMethod = new Medoid<V>(distanceMethod);
-			criterias.add(new VarianceRatio<V>(true).setMetrics(distanceMethod, centroidMethod));
-			criterias.add(new Silhouette<V>(Between.CENTROID,false,true).setMetrics(distanceMethod, centroidMethod)); //SSWC
-			if(distanceMethod.isSimilarity())
-				criterias.add(new CIndex<V>(true).setMetrics(distanceMethod, centroidMethod));
-			else 
-				criterias.add(new CIndex<V>(false).setMetrics(distanceMethod, centroidMethod));
-			if(distanceMethod.isSimilarity()) 
+			if(distanceMethod.isSimilarity()) {
 				criterias.add(new ZIndex<V>(true).setMetrics(distanceMethod, centroidMethod));
-			else
+//				criterias.add(new CIndex<V>(true).setMetrics(distanceMethod, centroidMethod));
+			}else{
 				criterias.add(new ZIndex<V>(false).setMetrics(distanceMethod, centroidMethod));
+//				criterias.add(new CIndex<V>(false).setMetrics(distanceMethod, centroidMethod));
+			}
+//			criterias.add(new VarianceRatio<V>(true).setMetrics(distanceMethod, centroidMethod));
+//			criterias.add(new Silhouette<V>(Between.CENTROID,false,true).setMetrics(distanceMethod, centroidMethod)); //SSWC
 		}
 		return criterias;
 	}
@@ -155,7 +154,7 @@ public class MeasuresUtil {
 //		distances.add(new NumberOfPathes<V, E>(graph ,weights,NumberOfPathes.Coeff.EXP,3,true));
 //		distances.add(new ModSimilarity<V, E>(graph ,weights,true,Norm.DIVIDE));		
 //		distances.add(new ModSimilarity<V, E>(graph ,weights,true,Norm.MINUS));	
-		distances.add(new ICloseness<V, E>(graph ,weights)); 
+//		distances.add(new ICloseness<V, E>(graph ,weights)); 
 //		distances.add(new ICloseness<V, E>(3, graph ,weights)); 
 //		distances.add(new ICloseness<V, E>(1, graph ,weights)); 
 //		distances.add(new IClosenessVariation<V, E>(3, graph ,weights)); 

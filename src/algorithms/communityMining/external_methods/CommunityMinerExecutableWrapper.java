@@ -1,4 +1,4 @@
-package algorithms.communityMining;
+package algorithms.communityMining.external_methods;
 
 
 import io.graph.GraphOutputStream;
@@ -24,13 +24,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 
+import algorithms.communityMining.CommunityMiner;
 import algorithms.communityMining.data.Grouping;
-import algorithms.communityMining.exernal_methods.Donetti;
-import algorithms.communityMining.exernal_methods.FastModularity;
-import algorithms.communityMining.exernal_methods.Louvain;
-import algorithms.communityMining.exernal_methods.PottsModel;
-import algorithms.communityMining.exernal_methods.WalkTrap;
-import algorithms.dev_topleaders.Partitioning;
+import algorithms.communityMining.topleaders.dev_.Partitioning;
 import edu.uci.ics.jung.algorithms.filters.VertexPredicateFilter;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
