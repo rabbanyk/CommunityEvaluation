@@ -14,7 +14,7 @@ import measure.graph.distance.ICloseness;
 
 import org.apache.commons.collections15.Transformer;
 
-import algorithms.communityMining.topleaders.dev_.Partitioning;
+import algorithms.communityMining.topleaders.data.Partitioning;
 import edu.uci.ics.jung.graph.Graph;
 
 public class LocalTopLeader<V,E> implements Transformer<Graph<V, E>, Partitioning<V>>  {

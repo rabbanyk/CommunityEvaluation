@@ -26,7 +26,7 @@ import org.apache.commons.collections15.Transformer;
 
 import algorithms.communityMining.CommunityMiner;
 import algorithms.communityMining.data.Grouping;
-import algorithms.communityMining.topleaders.dev_.Partitioning;
+import algorithms.communityMining.topleaders.data.Partitioning;
 import edu.uci.ics.jung.algorithms.filters.VertexPredicateFilter;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;

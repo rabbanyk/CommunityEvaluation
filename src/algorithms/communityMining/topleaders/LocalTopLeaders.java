@@ -1,12 +1,14 @@
 package algorithms.communityMining.topleaders;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections15.Transformer;
 
 import util.Statistics;
-import algorithms.communityMining.topleaders.dev_.CommunityMiner;
-import algorithms.communityMining.topleaders.dev_.Partitioning;
+import algorithms.communityMining.CommunityMiner;
+import algorithms.communityMining.data.Grouping;
+import algorithms.communityMining.topleaders.data.Partitioning;
 import algorithms.communityMining.topleaders.local.LocalTopLeader;
 import edu.uci.ics.jung.graph.Graph;
 
@@ -36,26 +38,23 @@ public class LocalTopLeaders<V,E> extends CommunityMiner<V, E> {
 		h = -1;
 	}
 
-	
 	/**
 	 * Finds communities in the given graph using local topleaders approach 
 	 * @param graph: undirected, unweighted graph
 	 * @return communities
 	 */
-	public Partitioning<V> findCommunities(Graph<V,E> graph){
+	@Override
+	public Grouping<V> findCommunities(Graph<V, E> graph, Map<E, ? extends Number> weights) {
 		//centersClosenessThreshold = 600;
 		double p[] = guessLocalParamsBasedOnGraph(graph);
 	//	System.err.println(p[0]+" "+p[1]+" "+p[2]+" "+p[3]);
 		//double outlierThereshod, double hubThreshold, double minCommunitySizeThreshold,double centersClosenessThreshold
 		topLeaders = new LocalTopLeader<V, E>(p[0],p[1],p[2],p[3]);//(0.78,.2,6,.8);//
-		return topLeaders.transform(graph);
+		return new Grouping<>(topLeaders.transform(graph).getCommunities());
 	
 //		int k = topLeaders.transform(graph).getNumberOfClusters();
 //		return findCommunities(graph,k);
 	}
-
-	
-	
 	
 	private double[] guessLocalParamsBasedOnGraph(Graph<V,E> graph){
 		//double outlierThereshod, double hubThreshold, double minCommunitySizeThreshold,double centersClosenessThreshold
@@ -153,6 +152,20 @@ public class LocalTopLeaders<V,E> extends CommunityMiner<V, E> {
 	 */
 	public void setH(double h) {
 		this.h = h;
+	}
+
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public String getShortName() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

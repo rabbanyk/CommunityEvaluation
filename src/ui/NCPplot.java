@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
-import algorithms.communityMining.topleaders.dev_.Partitioning;
+import algorithms.communityMining.topleaders.data.Partitioning;
 import edu.uci.ics.jung.graph.Graph;
 
 public class NCPplot <V,E>{

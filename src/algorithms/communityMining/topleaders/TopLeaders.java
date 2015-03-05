@@ -8,7 +8,7 @@ import org.apache.commons.collections15.Transformer;
 import static io.Logger.*;
 import algorithms.communityMining.CommunityMiner;
 import algorithms.communityMining.data.Grouping;
-import algorithms.communityMining.topleaders.dev_.Partitioning;
+import algorithms.communityMining.topleaders.data.Partitioning;
 import algorithms.communityMining.topleaders.global.GlobalTopLeaders;
 import edu.uci.ics.jung.graph.Graph;
 
@@ -21,22 +21,19 @@ import edu.uci.ics.jung.graph.Graph;
  */
 public class TopLeaders<V,E> extends CommunityMiner<V, E> {
  
-	double outlierThereshod = 0, centersClosenessThreshold = .1, 
+	double outlierThereshod = 0, centersClosenessThreshold = 4, 
 			minCommunitySizeThreshold = 4, hubThreshold = 0;
-	
-	public TopLeaders() {
+	int k;
+	public TopLeaders(int k) {
 		super();
+		this.k = k;
 	}
-	public Grouping<V> findCommunities(int k, Graph<V, E> graph, Map<E, ? extends Number> weights) {
+	@Override
+	public Grouping<V> findCommunities(Graph<V, E> graph, Map<E, ? extends Number> weights) {
 		Transformer<Graph<V, E>, Partitioning<V>>  topLeaders=  
 				new GlobalTopLeaders<V, E>(k, outlierThereshod, hubThreshold, centersClosenessThreshold);
 		//TODO: add weights
 		return new Grouping<V>(topLeaders.transform(graph).getCommunities());
-	
-	}
-	@Override
-	public Grouping<V> findCommunities(Graph<V, E> graph, Map<E, ? extends Number> weights) {
-		return findCommunities(11,graph,weights);
 	}
 	
 //	public Grouping<V> findCommunities(Graph<V,E> graph, int k, ArrayList<V> initialCenters, int distanceMeasureType){
@@ -50,15 +47,15 @@ public class TopLeaders<V,E> extends CommunityMiner<V, E> {
 
 	
 	public String toString(){
-		return "TopLeaders";
+		return "TopLeaders_"+k;
 	}
 
 	public String getName() {
-		return "TopLeaders";
+		return "TopLeaders_"+k;
 	}
 
 	public String getShortName() {
-		return "TL";
+		return "TL_"+k;
 	}
 
 	

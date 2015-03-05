@@ -22,7 +22,7 @@ import org.apache.commons.collections15.Transformer;
 
 import com.kenai.jaffl.provider.jffi.NumberUtil;
 
-import algorithms.communityMining.topleaders.dev_.Partitioning;
+import algorithms.communityMining.topleaders.data.Partitioning;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.graph.util.Pair;

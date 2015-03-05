@@ -43,7 +43,7 @@ import algorithms.communityMining.external_methods.Infomap;
 import algorithms.communityMining.external_methods.Louvain;
 import algorithms.communityMining.external_methods.PottsModel;
 import algorithms.communityMining.external_methods.WalkTrap;
-import algorithms.communityMining.topleaders.dev_.Partitioning;
+import algorithms.communityMining.topleaders.data.Partitioning;
 import data.GraphDataSet;
 import data.Pair;
 import dev_Experiments.ExternalIndexComparer;
@@ -70,7 +70,9 @@ public class CompareMethods {
 //		"./exps/fbtest/";
 //		"./exps/realBenchmarks/";
 		if (args.length ==0)
-			args = new String[] {"/home/reihaneh/projects/exps/fbtest/data/" , "-a"};
+			args = new String[] {"/home/reihaneh/projects/Datasets/facebook100/facebook100/data/" , "-a"};
+
+//			args = new String[] {"/home/reihaneh/projects/exps/fbtest/data/com/" , "-a"};
 
 		if(args.length>0) EXPNAME = args[0];
 //		deleteDir(new File(EXPNAME));
@@ -167,15 +169,15 @@ public class CompareMethods {
 			}
 		outResultsE.write(("\n").getBytes());
 		
-		for (CommunityMiner<V, E> communityMiner : AlgorithmUtils.<V, E>getSelectedCommunititMiners(isOverlapping)) {
-			if(!community_names.contains(communityMiner.getName()))community_names.add(communityMiner.getName().toLowerCase());
-		}
+		int counter =0;
 		//-------------------------------------------------------------------------
 		while(datasets.hasNext()) {
 			GraphDataSet<V, E> dataset = datasets.next();
 			if (dataset==null) break;
 			dataset.printStats();
 			int n  = dataset.graph.getVertexCount();
+			if(n>1000 && dataset.graph.getEdgeCount() > 100000) continue;
+//			if(n<=100000 ) {System.err.println(" C : ----------- "+counter);counter++; continue;}
 			community_runtimes = new HashMap<>();
 			
 			//			if(att.equals("value")) groundth = attClustering;
@@ -187,11 +189,13 @@ public class CompareMethods {
 					atts.add(attName);
 				}
 			}
-			
+			int maxK =(int) Math.sqrt(dataset.graph.getVertexCount());
 			//Find All Communities
-			if (doCommunities){
-				for (CommunityMiner<V, E> communityMiner : AlgorithmUtils.<V, E>getSelectedCommunititMiners(isOverlapping)) {
+			for (CommunityMiner<V, E> communityMiner : AlgorithmUtils.<V, E>getSelectedCommunititMiners(isOverlapping,maxK)) {
 					System.err.println(">>  --  Method: " + communityMiner.getName());
+				if (doCommunities){
+					if(!community_names.contains(communityMiner.getName()))
+						community_names.add(communityMiner.getName().toLowerCase());
 					if (atts.contains( communityMiner.getName().toLowerCase())) continue;
 	//				if(!community_names.contains(communityMiner.getName()))community_names.add(communityMiner.getName());
 					
@@ -207,12 +211,12 @@ public class CompareMethods {
 								grouping);
 						continue;
 					}
-					System.err.print(">>  -- resulted in " + grouping.getNumberOfGroups()+	" clusters " );
+					System.err.println(">>  -- resulted in " + grouping.getNumberOfGroups()+	" clusters " );
 					dataset.addPartitioingAttribute(communityMiner.getName().toLowerCase(), grouping.getGroups());				
-				}
-				if (writeResultedCommunities){
-					IOUtils.<V,E>writeGML(runname+"com/"+dataset.name+".gml",
-							dataset.graph, null, dataset.weights, null, dataset.attributes);
+					if (writeResultedCommunities){
+						IOUtils.<V,E>writeGML(runname+"com/"+dataset.name+".gml",
+								dataset.graph, null, dataset.weights, null, dataset.attributes);
+					}
 				}
 			}
 			//Do Evaluation

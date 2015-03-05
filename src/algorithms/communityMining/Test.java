@@ -36,7 +36,7 @@ import algorithms.AlgorithmUtils;
 import algorithms.AlgorithmUtils.Method;
 import algorithms.communityMining.data.Grouping;
 import algorithms.communityMining.external_methods.communityMinerIGraph;
-import algorithms.communityMining.topleaders.dev_.Partitioning;
+import algorithms.communityMining.topleaders.data.Partitioning;
 import data.GraphDataSet;
 import edu.uci.ics.jung.algorithms.metrics.Metrics;
 import edu.uci.ics.jung.graph.Graph;

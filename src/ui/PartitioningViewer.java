@@ -35,7 +35,7 @@ import org.apache.commons.collections15.Transformer;
 
 import algorithms.communityMining.data.Grouping;
 import algorithms.communityMining.topleaders.TopLeaders;
-import algorithms.communityMining.topleaders.dev_.Partitioning;
+import algorithms.communityMining.topleaders.data.Partitioning;
 import edu.uci.ics.jung.graph.Graph;
 
 /**
@@ -140,11 +140,11 @@ public class PartitioningViewer extends JApplet{
 		
 //		LocalTopLeader<Integer, Integer> localLeader = new LocalTopLeader<Integer, Integer>();
 		Vector<Vector<Set<Integer>>> vector = new Vector<Vector<Set<Integer>>>();
-		TopLeaders<Integer, Integer> topLeaders = new TopLeaders<Integer, Integer>();
+//		TopLeaders<Integer, Integer> topLeaders = new TopLeaders<Integer, Integer>();
 		int max = 0;
 		Modularity<Integer, Integer> modularity = new Modularity<Integer, Integer> (graph);
 		for (int i = 0; i < 4; i++) {
-			vector.add(topLeaders.findCommunities(i+2,graph, null).getGroups());
+			vector.add(( new TopLeaders<Integer, Integer>(i+2)).findCommunities(graph, null).getGroups());
 			if(modularity.evaluate(vector.get(i)) >= modularity.evaluate(vector.get(max))) max = i;
 		}
 		//Partitioning< Integer> partitioning = groundTruth;//localLeader.transform(graph);

@@ -17,6 +17,7 @@ import java.util.Vector;
 
 
 
+
 import measure.base.Proximity;
 import measure.graph.GraphCentralityBasedMedoid;
 import measure.graph.centrality.ClusteringDegree;
@@ -30,7 +31,7 @@ import measure.graph.distance.ShortestPath;
 
 import org.apache.commons.collections15.Transformer;
 
-import algorithms.communityMining.topleaders.dev_.Partitioning;
+import algorithms.communityMining.topleaders.data.Partitioning;
 import edu.uci.ics.jung.algorithms.filters.FilterUtils;
 import edu.uci.ics.jung.graph.Graph;
 

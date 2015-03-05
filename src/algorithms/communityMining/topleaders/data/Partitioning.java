@@ -1,4 +1,4 @@
-package algorithms.communityMining.topleaders.dev_;
+package algorithms.communityMining.topleaders.data;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

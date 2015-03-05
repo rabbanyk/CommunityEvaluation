@@ -1,6 +1,7 @@
 package algorithms;
 
 import java.util.Vector;
+import java.util.stream.IntStream;
 
 import algorithms.communityMining.CommunityMiner;
 import algorithms.communityMining.external_methods.*;
@@ -83,10 +84,9 @@ public class AlgorithmUtils {
 	}
 	public  static < V, E> Vector<CommunityMiner< V, E>> getExecCommunititMiners (){
 		Vector<CommunityMiner<V, E>> communityMiners = new Vector<CommunityMiner<V,E>>();
-		communityMiners.add(new TopLeaders<V,E>());
-//		communityMiners.add(new WalkTrap<V,E>());//
-//		communityMiners.add(new Infomap<V,E>());//
-//		communityMiners.add(new FastModularity<V,E>());//w 
+		communityMiners.add(new WalkTrap<V,E>());//
+		communityMiners.add(new Infomap<V,E>());//
+		communityMiners.add(new FastModularity<V,E>());//w 
 		communityMiners.add(new Louvain<V,E>());//w
 //		communityMiners.add(new PottsModel<V,E>());//A bit slow
 //		communityMiners.add(new Donetti<V,E>()); needs a parameter, otherwise performs poorly
@@ -108,9 +108,20 @@ public class AlgorithmUtils {
 		return getSelectedCommunititMiners(false);
 	}
 	public  static < V, E> Vector<CommunityMiner< V, E>> getSelectedCommunititMiners (boolean overlapping){
+		return getSelectedCommunititMiners(overlapping,-1);
+	}
+		
+	public  static < V, E> Vector<CommunityMiner< V, E>> getSelectedCommunititMiners (boolean overlapping, int maxK){
+		return getSelectedCommunititMiners(overlapping, IntStream.range(2, maxK).toArray() );
+	}
+	
+	public  static < V, E> Vector<CommunityMiner< V, E>> getSelectedCommunititMiners (boolean overlapping, int[] Tlks){
 		Vector<CommunityMiner<V, E>> communityMiners = new Vector<CommunityMiner<V,E>>();
 
 		if (!overlapping){
+			for (int k :Tlks) {
+				communityMiners.add(new TopLeaders<V,E>(k));
+			}
 			communityMiners.addAll(AlgorithmUtils.<V,E>getExecCommunititMiners());
 //		communityMiners.add(minerUtils.getCommunititMiner(Method.FastModularity));
 //		communityMiners.addAll(minerUtils.getModularityBasedCommunititMiners());
@@ -122,6 +133,8 @@ public class AlgorithmUtils {
 		
 		return communityMiners;
 	}
+	
+	
 	
 	
 //	public static void main(String[] args){

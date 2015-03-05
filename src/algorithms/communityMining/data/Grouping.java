@@ -9,7 +9,7 @@ import java.util.Vector;
 
 import org.apache.commons.collections15.Transformer;
 
-import algorithms.communityMining.topleaders.dev_.Partitioning;
+import algorithms.communityMining.topleaders.data.Partitioning;
 
 public  class Grouping <V> {
 	Vector<Set<V>> groups;
