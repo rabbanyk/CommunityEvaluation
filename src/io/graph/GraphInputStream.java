@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import org.apache.commons.collections15.Factory;
 
@@ -14,7 +15,7 @@ public abstract class GraphInputStream <V,E> {
 	 /**
      * Mapping of the Object created for this vertex and its string representation in the input file.
      */
-	protected HashMap<V, HashMap<Object, Object>> nodeAttributes = new HashMap<V, HashMap<Object,Object>>();
+	protected HashMap<V, HashMap<Object, Vector<Object>>> nodeAttributes = new HashMap<V, HashMap<Object,Vector<Object>>>();
 
 	protected Map<V, String> vertex_labels = new HashMap<V,String>();
 	protected Map<E, Double> weights;
@@ -22,7 +23,7 @@ public abstract class GraphInputStream <V,E> {
 	public String transform(V vertex){
 		return vertex_labels.get(vertex);
 	}
-	public HashMap<V, HashMap<Object, Object>> getNodeAttributes() {
+	public HashMap<V, HashMap<Object, Vector<Object>>> getNodeAttributes() {
 		return nodeAttributes;
 	}
 	public Map<E, Double> getWeights() {

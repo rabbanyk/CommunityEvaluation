@@ -13,7 +13,7 @@ import org.python.modules.math;
 import util.DatasetUtils;
 import data.AbstractMatrix;
 import data.AbstractVector;
-import data.LambertW;
+import data.dev_LambertW;
 import data.Pair;
 
 
@@ -73,7 +73,7 @@ public class AlgebricClusteringDistance {
 	}
 	static double invxlogx(double y){
 		//https://books.google.ca/books?id=1aAOdzK3FegC&pg=PA307&lpg=PA307&dq=inverse+of+x+log+x&source=bl&ots=3jOiG7Bsng&sig=7y3PNLHe8PpzIIdtCMgCxOViwec&hl=en&sa=X&ei=diDIVPrUBIOxyQSorIKwAw&ved=0CB0Q6AEwAA#v=onepage&q=inverse%20of%20x%20log%20x&f=false
-		return y/LambertW.branch0(y) -1;
+		return y/dev_LambertW.branch0(y) -1;
 	}
 	static Transformer<Pair<Double,Double>, Double> x2 = new Transformer<Pair<Double,Double>, Double>() {
 		@Override

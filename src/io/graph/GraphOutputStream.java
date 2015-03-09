@@ -17,13 +17,13 @@ public abstract class GraphOutputStream<V,E> {
 	protected  String  graphMetaData(Graph<V,E> graph){return "";}
 	protected  String  graphEnd(){return "";}
 	protected  String  verticesMetaData(Vector<V> vertexes){return "";}
-	protected  String  formatVetice(V v1,Transformer<V, Integer> vertex_Ids,Map<V, HashMap<Object,Object>> vertex_attributes){return "";}
+	protected  String  formatVetice(V v1,Transformer<V, Integer> vertex_Ids,Map<V, HashMap<Object,Vector<Object>>> vertex_attributes){return "";}
 	protected  String  edgeMetaData(){return "";}
 	protected  String  formatEdge(int v1, int v2 ,String weight){return "";}
 
 	public void writeGraph(String path, Graph<V,E> graph, Transformer<V, Integer> vertex_Ids ,
 Transformer<E, ? extends Number> weights , String weightsOutputFormat, 
-Map<V, HashMap<Object,Object>> vertex_attributes) throws IOException{
+Map<V, HashMap<Object,Vector<Object>>> vertex_attributes) throws IOException{
 		final Vector<V> vertexes = new Vector<V>(graph.getVertices());
 		FileOutputStream outputStream = new FileOutputStream(path);
 		outputStream.write(graphMetaData(graph).getBytes());
@@ -91,7 +91,7 @@ Map<V, HashMap<Object,Object>> vertex_attributes) throws IOException{
 		writeGraph(filepath, graph , vertex_Ids==null?null: TransformerUtils.mapTransformer(vertex_Ids), weights==null?null:TransformerUtils.mapTransformer(weights), weightsOutputFormat );
 	}
 	public void writeGraph(String filepath, Graph<V, E> graph,
-			final Map<V, Integer> vertex_Ids, final  Map<E, ? extends Number> weights,	 String weightsOutputFormat, Map<V, HashMap<Object,Object>> vertex_attributes) throws IOException {
+			final Map<V, Integer> vertex_Ids, final  Map<E, ? extends Number> weights,	 String weightsOutputFormat, Map<V, HashMap<Object,Vector<Object>>> vertex_attributes) throws IOException {
 		writeGraph(filepath, graph ,vertex_Ids==null?null: TransformerUtils.mapTransformer(vertex_Ids), 
 				weights==null?null:TransformerUtils.mapTransformer(weights), weightsOutputFormat ,vertex_attributes);
 	}

@@ -120,7 +120,7 @@ public class test {
 		Vector<Set<Integer>> p1 = dataset.getGrouping("U1").getGroups();//DatasetUtils.createClusteringFromArray(new int[][]{ {1,2,3,4,5},{0,6,7,8}});
 		Vector<Set<Integer>> p2 = dataset.getGrouping("U2").getGroups();//DatasetUtils.createClusteringFromArray(new int[][]{ {0,1,2,3,4},{5,6,7,8}});
 		
-		for (ClusteringAgreement<Integer> meas : MeasuresUtil.<Integer,Integer>getAgreements(dataset, null)) {
+		for (ClusteringAgreement<Integer> meas : MeasuresUtil.<Integer,Integer>getAgreements(dataset,true, null)) {
 			System.err.println(meas.toLatexString());
 			System.err.println(meas + "(V,V) =" +meas.getAgreement(groundTruth, groundTruth));
 			System.err.println(meas + "(U1,V) =" +meas.getAgreement(p1, groundTruth));
@@ -141,7 +141,6 @@ public class test {
 			System.err.println(tmp.first.get(i) + "(U,V) =" +tmp.second.get(i));
 			System.err.println(tmp1.first.get(i) + "(U1,V) =" +tmp1.second.get(i));
 			System.err.println(tmp2.first.get(i) + "(U2,V) =" +tmp2.second.get(i));
-
 		}
 	
 	}
@@ -150,6 +149,7 @@ public class test {
 	GraphDataSet<Integer, Integer> dataset = DatasetUtils.loadDummy(DummyDataset.Omega);
 	Graph<Integer, Integer> g =  dataset.graph;
 	Vector<Set<Integer>> groundTruth = dataset.getGrouping("V").getGroups();
+	System.err.println(groundTruth);
 	Vector<Set<Integer>> p1 = dataset.getGrouping("U1").getGroups();
 	Vector<Set<Integer>> p2 = dataset.getGrouping("U2").getGroups();
 		
@@ -289,8 +289,8 @@ public class test {
 	
 //		testExamples();
 //		testAltenativeImplementations();
-//		graphExample();
-//		omegaExample();
+		graphExample();
+		omegaExample();
 		setmatching_example();
 	}
 

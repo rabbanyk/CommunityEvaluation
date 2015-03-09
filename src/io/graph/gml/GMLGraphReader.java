@@ -49,18 +49,27 @@ public class GMLGraphReader <V,E> extends GraphInputStream<V, E> {
 	public Graph<V, E> readGraph(InputStream inputStream, Factory<V> nodeFactory,	Factory<E> edgeFactory) throws IOException {
 		Graph<V, E> graph = new SparseMultigraph<V, E>();
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-		int edgeId = 1;
+		int edgeId = 1, nodeId=1;
 		Object w;
 		String tmp;
 		while ((tmp = br.readLine()) != null) if(tmp.length()>0){		
 			if (tmp.contains("node")){
-				HashMap<Object, Object> attributes = new HashMap<>();
+				HashMap<Object, Vector<Object>> attributes = new HashMap<>();
 				while ((tmp = br.readLine()) != null && !tmp.contains("]")) if(tmp.length()>0 &&  !tmp.contains("[")){	
-					String[] vals = tmp.trim().split("[,\\s]+");
-					attributes.put(vals[0], parseValue(tmp.substring(tmp.indexOf(vals[0])+vals[0].length()).trim())); 
+					String[] vals = tmp.trim().split("[,{}\\s]+");
+//					attributes.put(vals[0], parseValue(tmp.substring(tmp.indexOf(vals[0])+vals[0].length()).trim())); 
+					if (attributes.get(vals[0])==null)
+						attributes.put(vals[0], new Vector<Object>());
+					for (int i=1; i< vals.length; i++)
+						attributes.get(vals[0]).add(vals[i].trim());
 				}
-				V v = (nodeFactory!= null)?nodeFactory.create():(V)attributes.get("id");	
-				
+				V v;
+				if((nodeFactory!= null))
+					v = nodeFactory.create();
+				else {
+					Vector<Object> ids = (attributes.get("id"));	
+					v = (V) (ids.size()>1?ids:(ids.size()>0?ids.get(0):nodeId++));
+					}
 				vertex_labels.put(v, v.toString());
 				labels_vertices.put(v.toString(),v);
 				nodeAttributes.put(v, attributes);
@@ -77,6 +86,7 @@ public class GMLGraphReader <V,E> extends GraphInputStream<V, E> {
 					if (weights ==null) weights = new HashMap<E, Double>();
 					weights.put(e, new Double(w.toString()));
 				}
+
 				graph.addEdge(e, labels_vertices.get(attributes.get("source").toString()),labels_vertices.get(attributes.get("target").toString()));
 		
 			}else if(tmp.contains("directed"))

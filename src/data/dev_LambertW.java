@@ -34,7 +34,7 @@ package data;
  *  [Corless, Gonnet, Hare, and Jeffrey, "On Lambert's W Function".]
  */
 
-public class LambertW { 
+public class dev_LambertW { 
 	
 	static public class gsl_sf_result {
 		public double val, err;

@@ -25,7 +25,7 @@ import util.DatasetUtils.DummyDataset;
 import algorithms.communityMining.data.Grouping;
 
 public class Standalone {
-	public <V,E> void compare(String netPath,  String g1Path,  String g2Path,  
+	public <V,E> void compare(String netPath,  String g1Path,  String g2Path,  boolean overlapping,
 								boolean doExacts , boolean doRI, boolean doNorm , boolean doTrace ,
 								boolean doVI , boolean doNMIsum , boolean doNMIsqrt ,boolean  doAMI,
 								boolean doJacc ,boolean  doFM,
@@ -35,8 +35,7 @@ public class Standalone {
 								boolean doWithStructureTrans  , boolean doWithStructurePlus  ,MeasuresUtil.Implementation implementation){
 		
 		
-		GraphDataSet<V,E> dataset= new GraphDataSet<V, E>(netPath);
-	
+		GraphDataSet<V,E> dataset=null;
 		Transformer<String , V> vertexTransformer ;
 		
 		if(netPath!=null) {
@@ -66,14 +65,14 @@ public class Standalone {
 			e1.printStackTrace();
 		}
 		
-		compare(dataset, grouping1, grouping2, doExacts, doRI, doNorm, doTrace, doVI,
+		compare(dataset, grouping1, grouping2,overlapping, doExacts, doRI, doNorm, doTrace, doVI,
 				doNMIsum, doNMIsqrt, doAMI, doJacc, doFM, doQ, doNMIvars, doOmega, 
 				doAll, doDegreeWeightedStructureBased, doEdgeStructureBased, 
 				doTransStructureBased, doSumStructureBased, doWithStructureTrans, 
 				doWithStructurePlus, implementation);
 	}
 	public <V,E> void compare(GraphDataSet<V,E> dataset, Grouping<V> grouping1,  Grouping<V> grouping2,  
-				boolean doExacts , boolean doRI, boolean doNorm , boolean doTrace ,
+				boolean overlapping,boolean doExacts , boolean doRI, boolean doNorm , boolean doTrace ,
 				boolean doVI , boolean doNMIsum , boolean doNMIsqrt ,boolean  doAMI,
 				boolean doJacc ,boolean  doFM,
 				boolean doQ  , boolean doNMIvars , boolean doOmega ,
@@ -84,21 +83,32 @@ public class Standalone {
 		if (dataset!=null && dataset.graph!=null)
 			datapoints = dataset.graph.getVertices();
 		if(datapoints==null) 
-			datapoints = AlgebricClusteringAgreement.getAllDatapoints( 
-					grouping1.getGroups(), grouping2.getGroups());
+			datapoints = AlgebricClusteringAgreement.getAllDatapoints(grouping1.getGroups(), grouping2.getGroups());
 		
 		if (doAll){
-			 doRI= doNorm= doTrace=	doVI= doNMIsum= doNMIsqrt= doAMI=doJacc = doFM= doQ= doNMIvars= doOmega= doAll=true;
+			if (overlapping)
+				doRI=doNorm=doTrace=doVI=doNMIsum=doNMIvars=doOmega=true;
+			else if (implementation==Implementation.ALGEBRIC_DELTA)
+				doRI=doNorm=doTrace=doVI=doNMIsum=true;
+			else 
+				doRI=doVI= doNMIsum=doJacc=doFM= true;
+			
 		}
-		if (dataset.graph==null && (doDegreeWeightedStructureBased || doEdgeStructureBased || doTransStructureBased 
-				||doSumStructureBased||doWithStructureTrans||doWithStructurePlus)){
-			System.err.println("Structure based measures only applicaple if the structure, i.e. graph, is given as input. Type -h for help.");
-		} else {
-			doDegreeWeightedStructureBased= doEdgeStructureBased= doTransStructureBased=
-					doSumStructureBased= doWithStructureTrans= doWithStructurePlus = true;
+		if (doDegreeWeightedStructureBased || doEdgeStructureBased || doTransStructureBased 
+				||doSumStructureBased||doWithStructureTrans||doWithStructurePlus){
+			if (dataset.graph==null)
+				System.err.println("Structure based measures only applicaple if the structure, i.e. graph, is given as input. Type -h for help.");
+			else if (doAll){
+				if (overlapping||implementation==Implementation.ALGEBRIC_DELTA){
+					doDegreeWeightedStructureBased= doEdgeStructureBased= doTransStructureBased=
+							doSumStructureBased= doWithStructureTrans= doWithStructurePlus = true;		
+				}else{ 
+					doDegreeWeightedStructureBased= doEdgeStructureBased= true;
+				}
+			}
 		}
 //		Vector<ClusteringAgreement<V>> measures = MeasuresUtil.getAgreementAlternatives(dataset.graph, null);
-		Vector<ClusteringAgreement<V>> measures = MeasuresUtil.getAgreements(dataset, doExacts, doRI, doNorm,
+		Vector<ClusteringAgreement<V>> measures = MeasuresUtil.getAgreements(dataset, overlapping, doExacts, doRI, doNorm,
 				doTrace, doVI, doNMIsum, doNMIsqrt, doAMI, doJacc, doFM, doNMIvars, doOmega, 
 				 doDegreeWeightedStructureBased, doEdgeStructureBased, doTransStructureBased, doSumStructureBased, 
 				 implementation);
@@ -120,12 +130,11 @@ public class Standalone {
 //				Pair<Vector<String>, Vector<Double>> tmp = AlgebricClusteringAgreement.getAllAgreements(dataset.graph, dataset.getWeights(), grouping1.getGroups(), grouping2.getGroups(),false, doTransStructureBased);
 //			}
 //		}
-
-		
 		
 	}
 	
-	public static void main (String[] args){
+	public void Compare(String[] args){
+		
 		// ./compare grouping1.pairs grouping2.pairs [-g network.pairs] -
 		// Results in :
 		// ARI' 
@@ -134,24 +143,24 @@ public class Standalone {
 		String netPath=null, g1Path, g2Path;
 		boolean doExacts = false, doRI=false, doNorm = false, doTrace=false;
 		boolean doVI=false, doNMIsum=false, doNMUsqrt=false, doAMI = false, doJacc =false, doFM =false;
-			
+		boolean overlapping = false;
 		boolean doQ = false, doNMIvars= false, doOmega=false;
 		boolean doAll = false;
 		boolean doDegreeWeightedStructureBased = false, doEdgeStructureBased = false, 
 				doTransStructureBased = false, doSumStructureBased = false;
 		boolean doWithStructureTrans = false, doWithStructurePlus = false;
 		MeasuresUtil.Implementation implementation = null;
-		
+
 		//To test
-		args ="NMIexample_v NMIexample_u1 -g ./NMIexample_net.gml -exact".split("[,\\s]+");
-//		for (int i = 0; i < args.length; i++) {
+		//		for (int i = 0; i < args.length; i++) {
 //			System.err.print(i+": "+args[i]+", ");
 //		}System.err.println();
 		
 		if(args.length>0 && args[0].equals("-h")){
-			System.out.println("Usage: ./compare grouping1 grouping2 [-g network.pairs]\n"
-					+ " groupings format: each line one group, lists nodes in that group"
+			System.out.println("Usage: ./compare grouping1 grouping2 [-g network]\n"
+					+ " groupings format: each line one group which lists nodes in that group"
 					+ "-all : compute all measures \n"
+					+ "-o: compute overlapping variations"
 					+ "-exact : compute exact variation, i.e. do not consider pairs of same-nodes \n"
 					+ "+ri : also compute the RI \n"
 					+ "+norm : also compute the norm variation\n"
@@ -176,9 +185,9 @@ public class Standalone {
 					+ "+nmiVars : also compute  overlapping nmi variations\n"
 					
 					+ "-originals: use original implementations if available \n"
-					+ "-ethaBased: use implementations of generalized formula based on eta if available \n"
+					+ "-ethaBased [default for disjoint]: use implementations of generalized formula based on eta if available \n"
 					+ "-algCont: use algebric implementations based on contingency table if available \n"
-					+ "-algDelta [default]: use algebric implementations based on delta if available \n"
+					+ "-algDelta [default for overlapping]: use algebric implementations based on delta if available \n"
 
 //					+ "+q: also compute q modularities measures  \n"
 					);
@@ -206,6 +215,8 @@ public class Standalone {
 			case "-exact":
 				doExacts = true;
 				break;
+			case "-o":
+				overlapping = true;
 			case "+ri":
 				doRI = true;
 				break;
@@ -275,8 +286,7 @@ public class Standalone {
 			}
 		}
 		
-		Standalone  standalone = new Standalone();
-		standalone.compare(netPath, g1Path, g2Path, doExacts, doRI, doNorm, doTrace,
+		compare(netPath, g1Path, g2Path,overlapping, doExacts, doRI, doNorm, doTrace,
 				doVI, doNMIsum, doNMUsqrt, doAMI,doJacc , doFM, 
 				doQ, doNMIvars, doOmega, doAll, 
 				doDegreeWeightedStructureBased, doEdgeStructureBased, doTransStructureBased,
@@ -305,6 +315,19 @@ public class Standalone {
 //				doSumStructureBased, doWithStructureTrans, doWithStructurePlus,imp);
 //		}
 	
+		
+	}
+	
+	public static void main (String[] args){
+		
+		Standalone  standalone = new Standalone();
+		args ="examples/NMIexample_V.list examples/NMIexample_U1.list  -all -exact ".split("[\\s]+");
+//		args ="examples/Omega_V.list examples/Omega_U1.list  -all -algDelta -exact".split("[\\s]+");
+		standalone.Compare(args);
+		args ="examples/NMIexample_V.list examples/NMIexample_U1.list  -all ".split("[\\s]+");
+//		args ="examples/Omega_V.list examples/Omega_U1.list  -all -algDelta -exact".split("[\\s]+");
+		standalone.Compare(args);
+
 	}
 	
 }

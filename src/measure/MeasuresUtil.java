@@ -196,28 +196,34 @@ public class MeasuresUtil {
 		
 		doExacts=  doNorm= doTrace=   doNMIsqrt=   doAMI=   doNMIvars= doOmega=
 		  doTransStructureBased= doSumStructureBased=false;
-		return getAgreements(dataset, doExacts, doRI, doNorm, doTrace, doVI, doNMIsum, doNMIsqrt, doAMI, doJacc, doFM, doNMIvars, doOmega,
+		return getAgreements(dataset, false, doExacts, doRI, doNorm, doTrace, doVI, doNMIsum, doNMIsqrt, doAMI, doJacc, doFM, doNMIvars, doOmega,
 				doDegreeWeightedStructureBased, doEdgeStructureBased, doTransStructureBased, doSumStructureBased, Implementation.GAM);
 		
 	}
-	public static<V,E> Vector< ClusteringAgreement<V>> getAgreements( GraphDataSet<V, E> dataset, Implementation imp ){
+	public static<V,E> Vector< ClusteringAgreement<V>> getAgreements( GraphDataSet<V, E> dataset, boolean overlapping, Implementation imp ){
 		boolean doExacts, doRI, doNorm, doTrace, doVI, doNMIsum, doNMIsqrt, doAMI, doJacc, doFM, doNMIvars, doOmega,
 		doDegreeWeightedStructureBased, doEdgeStructureBased, doTransStructureBased, doSumStructureBased;
 		doExacts= doRI= doNorm= doTrace= doVI= doNMIsum= doNMIsqrt= doAMI= doJacc= doFM= doNMIvars= doOmega=
 		doDegreeWeightedStructureBased= doEdgeStructureBased= doTransStructureBased= doSumStructureBased =true;
-		return getAgreements(dataset, doExacts, doRI, doNorm, doTrace, doVI, doNMIsum, doNMIsqrt, doAMI, doJacc, doFM, doNMIvars, doOmega,
+		return getAgreements(dataset, overlapping, doExacts, doRI, doNorm, doTrace, doVI, doNMIsum, doNMIsqrt, doAMI, doJacc, doFM, doNMIvars, doOmega,
 				doDegreeWeightedStructureBased, doEdgeStructureBased, doTransStructureBased, doSumStructureBased, imp);
 		
 	}
 	public static<V,E> Vector< ClusteringAgreement<V>> getAgreements(GraphDataSet<V, E> dataset, 
-			boolean doExacts , boolean doRI, boolean doNorm , boolean doTrace ,
+			boolean overlapping, boolean doExacts , boolean doRI, boolean doNorm , boolean doTrace ,
 			boolean doVI , boolean doNMIsum , boolean doNMIsqrt ,boolean  doAMI,
 			boolean doJacc ,boolean  doFM, 
 			boolean doNMIvars , boolean doOmega ,
 			boolean doDegreeWeightedStructureBased  , 
 			boolean doEdgeStructureBased  , boolean doTransStructureBased  , boolean doSumStructureBased  , Implementation imp ){
-		if(imp==null) imp =Implementation.ALGEBRIC_DELTA;
-		
+		if(imp==null) {
+			if(overlapping)
+				imp =Implementation.ALGEBRIC_DELTA;
+			else 
+				imp =Implementation.GAM;
+
+		}
+		System.err.println(imp);
 		Vector<ClusteringAgreement<V>> measures = new Vector<>(); 
 		Vector< AlgebricClusteringAgreement<V>> algebricMeasures = new Vector< AlgebricClusteringAgreement<V>>();
 		// RI & ARI
@@ -226,8 +232,8 @@ public class MeasuresUtil {
 			measures.add(new ARI<V>());
 			break;
 		case GAM:
-			measures.add(new GraphAGAM<V,E>(dataset.graph,dataset.getWeights(),doExacts?Type.RI :Type.X2,ExternalOverlap.Nodes ,AdjustionMethod.ARI_ADJUSTED));
-			if(doRI) measures.add(new GraphAGAM<V,E>(dataset.graph,dataset.getWeights(),doExacts?Type.RI :Type.X2,ExternalOverlap.Nodes ,AdjustionMethod.NORMALIZE));
+			measures.add(new GraphAGAM<V,E>(null,null,doExacts?Type.RI :Type.X2,ExternalOverlap.Nodes ,AdjustionMethod.ARI_ADJUSTED));
+			if(doRI) measures.add(new GraphAGAM<V,E>(null,null,doExacts?Type.RI :Type.X2,ExternalOverlap.Nodes ,AdjustionMethod.NORMALIZE));
 			break;
 		case ALGEBRIC_OVERLAP:
 			measures.add(new AlgebricClusteringAgreement<V>(AType.OVERLAP_RI, true, true , !doExacts));
@@ -252,8 +258,8 @@ public class MeasuresUtil {
 			if(doNMIsum) measures.add(new NMI<V>());
 			break;
 		case GAM:
-			if(doVI) measures.add(new GraphAGAM<V,E>(dataset.graph,dataset.getWeights(),Type.VI,ExternalOverlap.Nodes ,AdjustionMethod.NORMALIZE));
-			if(doNMIsum) measures.add(new GraphAGAM<V,E>(dataset.graph,dataset.getWeights(),Type.VI,ExternalOverlap.Nodes ,AdjustionMethod.ARI_ADJUSTED));
+			if(doVI) measures.add(new GraphAGAM<V,E>(null,null,Type.VI,ExternalOverlap.Nodes ,AdjustionMethod.NORMALIZE));
+			if(doNMIsum) measures.add(new GraphAGAM<V,E>(null,null,Type.VI,ExternalOverlap.Nodes ,AdjustionMethod.ARI_ADJUSTED));
 			break;
 		case ALGEBRIC_OVERLAP: 
 			if(doVI) measures.add(new AlgebricClusteringAgreement<V>(AType.OVERLAP_VI, false, true , !doExacts));
@@ -278,14 +284,15 @@ public class MeasuresUtil {
 		}
 		
 		measures.addAll(0,algebricMeasures);
-//		if(dataset.graph==null) return measures;
+		if(dataset==null) dataset = new GraphDataSet<V, E>("Null");
+//			return measures;
 		
 		if(doDegreeWeightedStructureBased)
 			measures.add(new GraphAGAM<V,E>(dataset.graph, dataset.getWeights(),Type.X2,ExternalOverlap.NodesWeightedByDegree , AdjustionMethod.ARI_ADJUSTED));
 		if(doEdgeStructureBased)   
 			measures.add(new GraphAGAM<V,E>(dataset.graph, dataset.getWeights(),Type.X2,ExternalOverlap.Edges , AdjustionMethod.ARI_ADJUSTED));
 	
-		if(doTransStructureBased);
+		if(doTransStructureBased)
 			for (AlgebricClusteringAgreement<V> algebricClusteringAgreement :algebricMeasures) 
 				measures.add(algebricClusteringAgreement.new StructureBasedClusteringAgreement<E>(StructureType.DEP_TRANS,dataset.graph, dataset.getWeights()));
 		if(doSumStructureBased) 

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -62,8 +63,6 @@ public class IOUtils  {
 	
 	@SuppressWarnings("unchecked")
 	public static <V,E> GraphInputStream<V, E> getReader (Type type){
-//		System.err.println(type);
-
 		switch (type) {
 		case pairs: case dat: case edges: return new PairsGraphReader<V, E>();
 		case gml: return new GMLGraphReader<V, E>();
@@ -98,7 +97,7 @@ public class IOUtils  {
 	
 	public static<V,E> void writeGML(String path, Graph<V, E> graph,
 			final Map<V, Integer> vertex_Ids, final  Map<E, ? extends Number> weights,	 
-			String weightsOutputFormat, Map<V, HashMap<Object,Object>> vertex_attributes) throws IOException {
+			String weightsOutputFormat, Map<V, HashMap<Object,Vector<Object>>> vertex_attributes) throws IOException {
 		
 		GMLGraphWriter<V,E> graphWriter = new GMLGraphWriter<V, E>();
 		graphWriter.writeGraph(path, graph ,vertex_Ids, 

@@ -1,6 +1,8 @@
 package io.graph;
 
+import io.graph.gml.GMLGraphWriter;
 import io.graph.pairs.PairsGraphWriter;
+import io.graph.pajek.PajekGraphWriter;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,7 +15,11 @@ public class Test {
 
 	//Testing
 	public static void main(String[] args){
-		
+//		String tmp =" 1 \"1\" a 0 b {2,3}";
+//		String[] vals = tmp.trim().split("[,{}\\s]+");
+//		for (String val:vals)
+//			System.err.println(val);
+
 		Graph<String, String> g = new SparseGraph<String, String>() ;
 		g.addEdge("ab","a", "b");
 		g.addEdge("bc","b", "c");
@@ -35,8 +41,12 @@ public class Test {
 		weights.put("de", 5.);
 		
 		try {
-			PairsGraphWriter<String, String> graphWriter = new PairsGraphWriter<String, String>()	;
+			GraphOutputStream<String, String> graphWriter = new PairsGraphWriter<String, String>()	;
 			graphWriter.writeGraph("testGraphF.wpairs", g , ids , weights, "%.0f");
+			 graphWriter = new GMLGraphWriter<String, String>()	;
+			graphWriter.writeGraph("testGraphF.gml", g , ids , weights, "%.0f");
+			 graphWriter = new PajekGraphWriter<String, String>()	;
+			graphWriter.writeGraph("testGraphF.net", g , ids , weights, "%.0f");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

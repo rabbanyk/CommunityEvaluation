@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.collections15.Transformer;
+
 import algorithms.communityMining.data.Grouping;
 import data.GraphDataSet;
 import edu.uci.ics.jung.graph.Graph;
@@ -48,7 +49,7 @@ public class DatasetUtils{
 	public static GraphDataSet<Integer, Integer> loadDummy(DummyDataset datasetName){
 		
 		GraphDataSet<Integer, Integer> dataset=new GraphDataSet<Integer, Integer>(datasetName.toString());
-		dataset.attributes = new HashMap<Integer, HashMap<Object,Object>>();
+		dataset.attributes = new HashMap<Integer, HashMap<Object,Vector<Object>>>();
 		Graph<Integer, Integer> g =  new SparseGraph<>() ;
 		dataset.graph = g;
 		int c=0;
@@ -71,7 +72,6 @@ public class DatasetUtils{
 			g.addEdge(c++,1,2);
 			g.addEdge(c++,2,3);
 			g.addEdge(c++,3,4);
-			//TODO: wrong bec omega att only one val per att!! 
 			dataset.addPartitioingAttribute("V", createClusteringFromArray(new int[][]{ {0,3,4},{1,2,3},{2,3,4}}));
 			dataset.addPartitioingAttribute("U1", createClusteringFromArray(new int[][]{ {0,3,4},{1},{2}}));
 			dataset.addPartitioingAttribute("U2", createClusteringFromArray(new int[][]{ {0,3,4},{1},{2,3}}));
@@ -101,6 +101,20 @@ public class DatasetUtils{
 		default:
 			break;
 		}
+		
+//		try {
+//			IOUtils.<Integer,Integer>writeGML("examples/"+dataset.name+"_attributed.gml",
+//					dataset.graph, null, dataset.weights, null, dataset.attributes);
+//			IOUtils.<Integer,Integer>writeGML("examples/"+dataset.name+".gml",
+//					dataset.graph, null, dataset.weights, null, null);
+//			
+//			IOUtils.<Integer>writeListGrouping("examples/"+dataset.name+"_V.list", dataset.getGrouping("V"), dataset.getLabels());
+//			IOUtils.<Integer>writeListGrouping("examples/"+dataset.name+"_U1.list", dataset.getGrouping("U1"), dataset.getLabels());
+//			IOUtils.<Integer>writeListGrouping("examples/"+dataset.name+"_U2.list", dataset.getGrouping("U2"), dataset.getLabels());
+//
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		
 		return dataset;
 
@@ -288,16 +302,14 @@ public class DatasetUtils{
 		System.err.println(dataset.name);
 		int[][] coms = {{1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 17, 18, 20, 22} , 
 				{9, 10, 15, 16, 19, 21, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34}};
-		dataset.attributes = new HashMap<Integer, HashMap<Object,Object>>();
+		dataset.attributes = new HashMap<Integer, HashMap<Object,Vector<Object>>>();
 	
 		for (Integer v :dataset.graph.getVertices()) {
-			if(dataset.attributes.get(v)== null) dataset.attributes.put(v, new HashMap<>()); 
-			dataset.attributes.get(v).put("label", ""+v);
+			dataset.addAttribute(v, "label", ""+v);
 		}
 		for (int c = 0; c < coms.length; c++) {
 			for (int v : coms[c]){
-				if(dataset.attributes.get(v)== null) dataset.attributes.put(v, new HashMap<>()); 
-				dataset.attributes.get(v).put("value", c+1);
+				dataset.addAttribute(v, "value", c+1);
 			}
 		}
 	
@@ -311,10 +323,10 @@ public class DatasetUtils{
 	
 	
 	public static void main(String[] args) {
+//		convertKaratewithCommunitiestoGML();
 		for (GraphDataSet<Integer, Integer> dataset : DatasetUtils.<Integer,Integer>loadAllDataSets("./Datasets/classics")) {
 			dataset.printStats();;
 		}
-//		convertKaratewithCommunitiestoGML();
 	}
 
 }

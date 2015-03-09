@@ -19,7 +19,7 @@ import edu.uci.ics.jung.graph.Graph;
 public class GraphDataSet<V,E> {
 		public String name;
 		public Map<E, Double> weights;
-		public Map<V, HashMap<Object, Object>> attributes;
+		public Map<V, HashMap<Object, Vector<Object>>> attributes;
 		public Graph<V, E> graph;
 		public Map<String, V> labels_vertices;
 
@@ -30,6 +30,19 @@ public class GraphDataSet<V,E> {
 			return weights==null?null: TransformerUtils.mapTransformer(weights);
 		}
 		
+		public void addAttribute(V v, Object attributeKey, Object attValue){
+			HashMap<Object, Vector<Object>> attributesMap = attributes.get(v);
+			if(attributesMap==null){
+				attributes.put(v,new HashMap<Object, Vector<Object>>());
+				attributesMap = attributes.get(v);
+			}
+			Vector<Object> attributeValues = attributesMap.get(attributeKey);
+			if(attributeValues ==null){
+				attributesMap.put(attributeKey, new Vector<>());
+				attributeValues = attributesMap.get(attributeKey);
+			}
+			attributeValues.add(attValue);
+		}
 		//Attribute values are the groupIds
 		//Or that each unique value determines a new group
 		public Grouping<V> getGrouping(Object attribute, final Object missingValue){
@@ -42,6 +55,7 @@ public class GraphDataSet<V,E> {
 						return clusters.indexOf(obj);
 					}});
 		}
+		
 		//Attribute values are the groupIds
 		//Or that each unique value determines a new group
 		public Grouping<V> getGrouping(Object attribute){
@@ -55,19 +69,22 @@ public class GraphDataSet<V,E> {
 		}
 		// groupId transformers maps the attribute value to a groupId
 		public Grouping<V> getGrouping(Object attribute, Transformer<Object, Integer> groupId){
+			if (attribute instanceof String)
+				attribute = ((String)attribute).toLowerCase();
 			Grouping<V> res = new Grouping<>();
 			for (V v : attributes.keySet()) {
 				if(attributes.get(v).containsKey(attribute)){
-//					System.err.println(attributes.get(v));
-					Integer gId = groupId.transform(attributes.get(v).get(attribute));
-					if (gId != null){ //missing
-						while (gId>=res.getNumberOfGroups()) res.addGroup(new HashSet<V>());
-						res.getGroup(gId).add(v);
-					}//else System.err.println("miss");
-				}
+					System.err.println(attributes.get(v));
+					for (Object attValue: attributes.get(v).get(attribute)){
+						Integer gId = groupId.transform(attValue);
+						if (gId != null){ //missing
+							while (gId>=res.getNumberOfGroups()) res.addGroup(new HashSet<V>());
+							res.getGroup(gId).add(v);
+						}
+					}
+				}else System.err.println("miss");
 			}
-			//Not good idea since if two nodes are put into two different cluster, we will lose this info
-//			res.removeGroupsSmallerThan(2);
+//			res.removeGroupsSmallerThan(2);	//Not good idea since if two nodes are put into two different cluster, we will lose this info
 			return res;
 		}
 		
@@ -95,23 +112,28 @@ public class GraphDataSet<V,E> {
 
 			return isConnected;
 		}
+		//Mind the lowercase
 		public void addPartitioingAttribute (String key,Vector<Set<V>> grouping){
 //			System.err.println("---------------adding:::  "+grouping.size());
 			key  = key.toLowerCase();
 			for (int groupid = 0 ; groupid< grouping.size(); groupid++) {
 				for (V v : grouping.get(groupid)) {
 //					System.err.println(v);
-					if(attributes.get(v)==null)
-						attributes.put(v,new HashMap<>());
-					attributes.get(v).put(key, groupid+1);
+					addAttribute(v, key, groupid+1);
 				}
 			}
 		}
 		public Map<V, String> getAttMap(Object attribute){
+			String attributeString ;
 			Map<V, String> res = new HashMap<V, String> ();
 			for (V v : attributes.keySet()) {
 				if(attributes.get(v).containsKey(attribute)){
-					res.put(v, attributes.get(v).get(attribute).toString());
+					attributeString = "";
+					for (Object attValue: attributes.get(v).get(attribute)){
+						if(attributeString.length()>0) attributeString+=" , ";
+						attributeString+=attValue.toString();
+					}
+					res.put(v, attributeString);
 				}
 			}
 			return res;

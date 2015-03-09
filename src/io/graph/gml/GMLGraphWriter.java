@@ -2,6 +2,7 @@ package io.graph.gml;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 
@@ -61,16 +62,25 @@ public class GMLGraphWriter<V,E> extends GraphOutputStream<V, E>{
    label "Node A"
   ]
  */
-	protected String formatVetice(V v1,Transformer<V, Integer> vertex_Ids,Map<V, HashMap<Object,Object>> vertex_attributes){
+	//Attributes with more than one value, will be written as attKey {val1,val2,...}
+	protected String formatVetice(V v1,Transformer<V, Integer> vertex_Ids,Map<V, HashMap<Object,Vector<Object>>> vertex_attributes){
 		String res = "node\n[\n\tid "+ (vertex_Ids!=null?vertex_Ids.transform(v1):v1.hashCode());
 		if(vertex_attributes!=null){
-			Map<Object, Object> attributes = vertex_attributes.get(v1);
+			Map<Object, Vector<Object>> attributes = vertex_attributes.get(v1);
 			for(Object att : attributes.keySet()){
-				Object value = attributes.get(att);
-				String tmp = (value instanceof String)?"\"":"";
-				res += "\n\t"+ att+" " +  tmp + value  +tmp;
+				res += "\n\t"+ att;
+				Vector<Object> values = attributes.get(att);
+				if (values.size()>1) res +=" {";
+				for (int i = 0; i < values.size(); i++) {
+//					for (Object value :values ){
+					Object value = values.get(i);
+					String marker = (value instanceof String)?"\"":"";
+					res += ((values.size()>1)?(i!=0?",":""):" ") +  marker + value  +marker;
+				}
+				if (values.size()>1) res +="} ";
 			}
 		}
+		
 		res +="\n]\n";
  		return res; 
  	}
