@@ -110,3 +110,6 @@ see the note below for more information.
 		0.7031888798037612    , 0.8512396694214877  , 0.7047095797180738  , 0.8395939690034018  , 0.64     , 0.7804878048780487  , 0.8423282765538793  , 0.7847044314890322  
 		
 		
+#### Reference
+More information in this paper: 
+Rabbany, Reihaneh, and Osmar R. Zaiane. "Generalization of Clustering Agreements and Distances for Overlapping Clusters and Network Communities." [arXiv preprint arXiv:1412.2601 (2014)](http://arxiv.org/abs/1412.2601).
