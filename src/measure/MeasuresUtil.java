@@ -223,7 +223,7 @@ public class MeasuresUtil {
 				imp =Implementation.GAM;
 
 		}
-		System.err.println(imp);
+//		System.err.println(imp);
 		Vector<ClusteringAgreement<V>> measures = new Vector<>(); 
 		Vector< AlgebricClusteringAgreement<V>> algebricMeasures = new Vector< AlgebricClusteringAgreement<V>>();
 		// RI & ARI

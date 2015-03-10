@@ -4,6 +4,7 @@ import io.group.ListGrouingReader;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,12 +12,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
+
 import measure.MeasuresUtil;
 import measure.MeasuresUtil.Implementation;
 import measure.cluster.agreement.ClusteringAgreement;
 import measure.cluster.distance.AlgebricClusteringAgreement;
 
 import org.apache.commons.collections15.Transformer;
+import org.jfree.data.statistics.MeanAndStandardDeviation;
 
 import data.GraphDataSet;
 import util.DatasetUtils;
@@ -25,6 +29,8 @@ import util.DatasetUtils.DummyDataset;
 import algorithms.communityMining.data.Grouping;
 
 public class Standalone {
+	DecimalFormat decimalFormat = new DecimalFormat("#.###");
+
 	public <V,E> void compare(String netPath,  String g1Path,  String g2Path,  boolean overlapping,
 								boolean doExacts , boolean doRI, boolean doNorm , boolean doTrace ,
 								boolean doVI , boolean doNMIsum , boolean doNMIsqrt ,boolean  doAMI,
@@ -32,7 +38,7 @@ public class Standalone {
 								boolean doQ  , boolean doNMIvars , boolean doOmega ,
 								boolean doAll , boolean doDegreeWeightedStructureBased  , 
 								boolean doEdgeStructureBased  , boolean doTransStructureBased  , boolean doSumStructureBased  ,
-								boolean doWithStructureTrans  , boolean doWithStructurePlus  ,MeasuresUtil.Implementation implementation){
+								boolean doWithStructureTrans  , boolean doWithStructurePlus  ,MeasuresUtil.Implementation implementation, boolean printDetailed){
 		
 		
 		GraphDataSet<V,E> dataset=null;
@@ -41,7 +47,7 @@ public class Standalone {
 		if(netPath!=null) {
 			dataset = DatasetUtils.<V,E>load(netPath);
 			final Map<String, V> labels_vertices = dataset.labels_vertices;
-			System.err.println(labels_vertices);
+//			System.err.println(labels_vertices);
 			vertexTransformer = new Transformer<String, V>() {
 				@Override
 				public V transform(String input) {
@@ -69,7 +75,7 @@ public class Standalone {
 				doNMIsum, doNMIsqrt, doAMI, doJacc, doFM, doQ, doNMIvars, doOmega, 
 				doAll, doDegreeWeightedStructureBased, doEdgeStructureBased, 
 				doTransStructureBased, doSumStructureBased, doWithStructureTrans, 
-				doWithStructurePlus, implementation);
+				doWithStructurePlus, implementation, printDetailed);
 	}
 	public <V,E> void compare(GraphDataSet<V,E> dataset, Grouping<V> grouping1,  Grouping<V> grouping2,  
 				boolean overlapping,boolean doExacts , boolean doRI, boolean doNorm , boolean doTrace ,
@@ -78,34 +84,38 @@ public class Standalone {
 				boolean doQ  , boolean doNMIvars , boolean doOmega ,
 				boolean doAll , boolean doDegreeWeightedStructureBased  , 
 				boolean doEdgeStructureBased  , boolean doTransStructureBased  , boolean doSumStructureBased  ,
-				boolean doWithStructureTrans  , boolean doWithStructurePlus  ,MeasuresUtil.Implementation implementation){
+				boolean doWithStructureTrans  , boolean doWithStructurePlus  ,MeasuresUtil.Implementation implementation, boolean printDetailed){
 		Collection<V> datapoints= null;
+
 		if (dataset!=null && dataset.graph!=null)
 			datapoints = dataset.graph.getVertices();
 		if(datapoints==null) 
 			datapoints = AlgebricClusteringAgreement.getAllDatapoints(grouping1.getGroups(), grouping2.getGroups());
-		
+
 		if (doAll){
 			if (overlapping)
-				doRI=doNorm=doTrace=doVI=doNMIsum=doNMIvars=doOmega=true;
+				doRI=doNorm=doTrace=doOmega=true;
 			else if (implementation==Implementation.ALGEBRIC_DELTA)
-				doRI=doNorm=doTrace=doVI=doNMIsum=true;
+				doRI=doNorm=doTrace=doVI=doNMIsum=doJacc=doFM= true;
 			else 
 				doRI=doVI= doNMIsum=doJacc=doFM= true;
 			
-		}
-		if (doDegreeWeightedStructureBased || doEdgeStructureBased || doTransStructureBased 
+		}		
+
+		if ((dataset!=null && dataset.graph!=null) || doDegreeWeightedStructureBased || doEdgeStructureBased || doTransStructureBased 
 				||doSumStructureBased||doWithStructureTrans||doWithStructurePlus){
 			if (dataset.graph==null)
 				System.err.println("Structure based measures only applicaple if the structure, i.e. graph, is given as input. Type -h for help.");
-			else if (doAll){
-				if (overlapping||implementation==Implementation.ALGEBRIC_DELTA){
-					doDegreeWeightedStructureBased= doEdgeStructureBased= doTransStructureBased=
-							doSumStructureBased= doWithStructureTrans= doWithStructurePlus = true;		
-				}else{ 
+			else {//if (doAll){
+				if (overlapping){
+					doTransStructureBased=doSumStructureBased= doWithStructureTrans= doWithStructurePlus = true;		
+				}else {
 					doDegreeWeightedStructureBased= doEdgeStructureBased= true;
 				}
-			}
+				if (implementation==Implementation.ALGEBRIC_DELTA) {
+					doTransStructureBased=doSumStructureBased= doWithStructureTrans= doWithStructurePlus = true;		
+				}
+			}	
 		}
 //		Vector<ClusteringAgreement<V>> measures = MeasuresUtil.getAgreementAlternatives(dataset.graph, null);
 		Vector<ClusteringAgreement<V>> measures = MeasuresUtil.getAgreements(dataset, overlapping, doExacts, doRI, doNorm,
@@ -113,12 +123,29 @@ public class Standalone {
 				 doDegreeWeightedStructureBased, doEdgeStructureBased, doTransStructureBased, doSumStructureBased, 
 				 implementation);
 
-		for (ClusteringAgreement<V> clusteringAgreement : measures) {
-			System.out.print(clusteringAgreement.toLatexString()+ " , " );
+		Vector<String> formats = new Vector<String>();
+		Vector<String> names = new Vector<String>();
+		Vector<String> values = new Vector<String>();
+		
+		String  format ;int detailedNameStartsFrom;
+		double agreement ;
+		for (int i=0;i<measures.size();i++){
+			names.add(measures.get(i).toLatexString());
+			detailedNameStartsFrom = names.get(i).indexOf(':');
+			if(!printDetailed && detailedNameStartsFrom!=-1)
+				names.set(i, names.get(i).substring(0, detailedNameStartsFrom));
+			
+			agreement = measures.get(i).getAgreementCovering(datapoints ,grouping1.getGroups() , grouping2.getGroups());
+			values.add((printDetailed?agreement: decimalFormat.format(agreement))+"");
+			
+			formats.add("%-"+(Math.max(names.lastElement().length(), values.lastElement().length())+4)+"s");
+		}
+		for (int i=0;i<measures.size();i++){
+			System.out.format(formats.get(i),   (i!=0?", ":"")+  names.get(i));
 		}
 		System.out.println();
-		for (ClusteringAgreement<V> clusteringAgreement : measures) {
-			System.out.print(clusteringAgreement.getAgreementCovering(datapoints ,grouping1.getGroups() , grouping2.getGroups()) + " , ");
+		for (int i=0;i<measures.size();i++){
+			System.out.format(formats.get(i),   (i!=0?", ":"")+  values.get(i));
 		}
 		System.out.println();
 		
@@ -150,44 +177,45 @@ public class Standalone {
 				doTransStructureBased = false, doSumStructureBased = false;
 		boolean doWithStructureTrans = false, doWithStructurePlus = false;
 		MeasuresUtil.Implementation implementation = null;
+		boolean printDetailed=false;
 
 		//To test
 		//		for (int i = 0; i < args.length; i++) {
 //			System.err.print(i+": "+args[i]+", ");
 //		}System.err.println();
 		
-		if(args.length>0 && args[0].equals("-h")){
+		if(args.length>0 && ( args[0].equals("-h")||args[0].equals("--help"))){
 			System.out.println("Usage: ./compare grouping1 grouping2 [-g network]\n"
-					+ " groupings format: each line one group which lists nodes in that group"
-					+ "-all : compute all measures \n"
-					+ "-o: compute overlapping variations"
-					+ "-exact : compute exact variation, i.e. do not consider pairs of same-nodes \n"
-					+ "+ri : also compute the RI \n"
-					+ "+norm : also compute the norm variation\n"
-					+ "+trace : also compute the trace variation \n"
+					+ "\t-all    : compute all measures \n"
+					+ "\t-o      : compute overlapping variations\n"
+					+ "\t-exact  : compute exact variation, i.e. do not consider pairs of same-nodes \n"
+					+ "\t+ri     : also compute the RI \n"
+					+ "\t+norm   : also compute the norm variation\n"
+					+ "\t+trace  : also compute the trace variation \n"
+					+ "\t+details: print detailed names for measures \n"
 					
-					+ "+vi : also compute VI \n"
-					+ "+nmi : also compute NMI_sum \n"
-					+ "+nmiSq : also compute NMI_sqrt \n"
-					+ "+ami : also compute AMI \n"
-					+ "+Jacc: also compute Jaccard"
-					+ "+F: also compute FMeasure"
+					+ "\t+vi     : also compute VI \n"
+					+ "\t+nmi    : also compute NMI_sum \n"
+					+ "\t+nmiSq  : also compute NMI_sqrt \n"
+					+ "\t+ami    : also compute AMI \n"
+					+ "\t+Jacc   : also compute Jaccard\n"
+					+ "\t+F      : also compute FMeasure\n"
 					
-					+ "+sbwd : also compute structure based weighted degree overlap  \n"
-					+ "+sbwe : also compute structure based edge overlap  \n"
-					+ "+sbt : also compute structure based transposed \n"
-					+ "+sbs : also compute  structure based sum variation\n"
+					+ "\t+sbwd   : also compute structure based weighted degree overlap  \n"
+					+ "\t+sbwe   : also compute structure based edge overlap  \n"
+					+ "\t+sbt    : also compute structure based transposed \n"
+					+ "\t+sbs    : also compute  structure based sum variation\n"
 					
-//					+ "+wst : also compare with structure  transposed \n"
-//					+ "+wsp : also compare with structure  sum variation\n"
+//					+ "\t+wst : \t also compare with structure  transposed \n"
+//					+ "\t+wsp : \t also compare with structure  sum variation\n"
 //					
-					+ "+omega : also compute omega index \n"
-					+ "+nmiVars : also compute  overlapping nmi variations\n"
+					+ "\t+omega  : also compute omega index \n"
+					+ "\t+nmiVars: also compute  overlapping nmi variations\n"
 					
-					+ "-originals: use original implementations if available \n"
-					+ "-ethaBased [default for disjoint]: use implementations of generalized formula based on eta if available \n"
-					+ "-algCont: use algebric implementations based on contingency table if available \n"
-					+ "-algDelta [default for overlapping]: use algebric implementations based on delta if available \n"
+					+ "\t-originals : use original implementations \n"
+					+ "\t-ethaBased : [default for disjoint] use implementations of generalized formula based on eta \n"
+					+ "\t-algCont   : use algebric implementations based on contingency table\n"
+					+ "\t-algDelta  : [default for overlapping] use algebric implementations based on delta \n"
 
 //					+ "+q: also compute q modularities measures  \n"
 					);
@@ -209,6 +237,7 @@ public class Standalone {
 					System.err.println("Should provide the path to the network file. Type -h for help.");
 					return;
 				}
+				break;
 			case "-all":
 				doAll = true;
 				break;
@@ -217,6 +246,7 @@ public class Standalone {
 				break;
 			case "-o":
 				overlapping = true;
+				break;
 			case "+ri":
 				doRI = true;
 				break;
@@ -250,6 +280,10 @@ public class Standalone {
 			case "+sbs":
 				doSumStructureBased = true;
 				break;
+				
+			case "+details":
+				printDetailed = true;
+				break;
 //			case "+wst":
 //				doWithStructureTrans = true;
 //				break;
@@ -266,18 +300,26 @@ public class Standalone {
 				if (implementation!=null)
 					System.err.println("Only one implementation mode should be chosen, last one would be effective!");
 				implementation = Implementation.ORIGINAL;
+				break;
+
 			case "-ethaBased":				
 				if (implementation!=null)
 				System.err.println("Only one implementation mode should be chosen, last one would be effective!");
 				implementation = Implementation.GAM;
+				break;
+
 			case "-algCont":				
 				if (implementation!=null)
 				System.err.println("Only one implementation mode should be chosen, last one would be effective!");
 				implementation = Implementation.ALGEBRIC_OVERLAP;
+				break;
+
 			case "-algDelta":				
 				if (implementation!=null)
 				System.err.println("Only one implementation mode should be chosen, last one would be effective!");
 				implementation = Implementation.ALGEBRIC_DELTA;
+				break;
+
 			case "+q":
 				doQ = true;
 				break;
@@ -285,12 +327,33 @@ public class Standalone {
 				break;
 			}
 		}
-		
 		compare(netPath, g1Path, g2Path,overlapping, doExacts, doRI, doNorm, doTrace,
 				doVI, doNMIsum, doNMUsqrt, doAMI,doJacc , doFM, 
 				doQ, doNMIvars, doOmega, doAll, 
 				doDegreeWeightedStructureBased, doEdgeStructureBased, doTransStructureBased,
-				doSumStructureBased, doWithStructureTrans, doWithStructurePlus,implementation);
+				doSumStructureBased, doWithStructureTrans, doWithStructurePlus,implementation, printDetailed);
+		
+	
+	}
+	public void Compare(String command){
+		System.err.println("./cag.jar "+command);
+		Compare(command.split("[\\s]+"));
+	}
+	public void test (){
+		String comm="";
+		comm+="-all  ";
+		comm+="-o ";
+//		comm+="-algDelta ";
+		comm+="+nmiVars ";
+
+		for (String dataset : new String[]{"NMIexample","Omega","Structure"}){
+			System.out.println(dataset);
+			Compare("examples/"+dataset+"_V.list "+"examples/"+dataset+"_U1.list "+comm);
+			Compare("examples/"+dataset+"_V.list "+"examples/"+dataset+"_U2.list "+comm);
+			Compare("examples/"+dataset+"_V.list "+"examples/"+dataset+"_U1.list "+"-g examples/"+dataset+".gml "+comm);
+			Compare("examples/"+dataset+"_V.list "+"examples/"+dataset+"_U2.list "+"-g examples/"+dataset+".gml "+ comm);
+
+		}
 		
 		//Writing Examples
 //		for(DummyDataset dummyDataset: DummyDataset.values()){
@@ -314,20 +377,12 @@ public class Standalone {
 //				doDegreeWeightedStructureBased, doEdgeStructureBased, doTransStructureBased,
 //				doSumStructureBased, doWithStructureTrans, doWithStructurePlus,imp);
 //		}
-	
-		
 	}
 	
 	public static void main (String[] args){
-		
 		Standalone  standalone = new Standalone();
-		args ="examples/NMIexample_V.list examples/NMIexample_U1.list  -all -exact ".split("[\\s]+");
-//		args ="examples/Omega_V.list examples/Omega_U1.list  -all -algDelta -exact".split("[\\s]+");
+//		standalone.test();
 		standalone.Compare(args);
-		args ="examples/NMIexample_V.list examples/NMIexample_U1.list  -all ".split("[\\s]+");
-//		args ="examples/Omega_V.list examples/Omega_U1.list  -all -algDelta -exact".split("[\\s]+");
-		standalone.Compare(args);
-
 	}
 	
 }

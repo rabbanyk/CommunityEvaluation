@@ -147,7 +147,7 @@ public class DatasetUtils{
 			FileInputStream fgraph = new FileInputStream(network);
 			GraphInputStream<V, E> graphReader =  IOUtils.getReader(network.getName());
 			if(graphReader != null){
-				System.err.println("loading " + network.getName()+"...");
+//				System.err.println("loading " + network.getName()+"...");
 //				System.err.println(network.getName());
 //				System.err.println(graphReader);
 				final GraphDataSet<V, E> dataSet = new GraphDataSet<V, E>(network.getName());

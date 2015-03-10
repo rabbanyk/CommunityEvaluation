@@ -503,8 +503,10 @@ public class GraphAGAM<V,E>  extends PartiotioningAgreement<V> {
 			if (externalType==GAM.Type.X2) euivalentTo= adjusted==AdjustionMethod.ARI_ADJUSTED?"ARI'":(adjusted==AdjustionMethod.NORMALIZE?"RI'":"");
 			if (externalType==GAM.Type.VI) euivalentTo= adjusted==AdjustionMethod.ARI_ADJUSTED?"NMI_{+}":(adjusted==AdjustionMethod.NORMALIZE?"VI":"");
 			if (externalType==GAM.Type.RI) euivalentTo= adjusted==AdjustionMethod.ARI_ADJUSTED?"ARI":(adjusted==AdjustionMethod.NORMALIZE?"RI":"");
+			//For shorter names
+//			if (externalType==GAM.Type.X2) euivalentTo= externalOverlapMode==ExternalOverlap.Edges?"ARI'_\\xi":(externalOverlapMode==ExternalOverlap.NodesWeightedByDegree?"ARI'_\\SigmaD":"");
 		}
-		String res = euivalentTo+" : "+(modifier)+"R_{"+head+ "}^{" +tail+"}";
+		String res = (euivalentTo.length()>0?(euivalentTo+" : "):"")+(modifier)+"R_{"+head+ "}^{" +tail+"}";
 		
 		return res+" ";
 	}
