@@ -63,27 +63,26 @@ public class GMLGraphWriter<V,E> extends GraphOutputStream<V, E>{
   ]
  */
 	//Attributes with more than one value, will be written as attKey {val1,val2,...}
-	protected String formatVetice(V v1,Transformer<V, Integer> vertex_Ids,Map<V, HashMap<Object,Vector<Object>>> vertex_attributes){
-		String res = "node\n[\n\tid "+ (vertex_Ids!=null?vertex_Ids.transform(v1):v1.hashCode());
+	protected String formatVetice(V v1,Transformer<V, String> vertex_Ids,Map<V, HashMap<Object,Vector<Object>>> vertex_attributes){
+		String vid = ""+(vertex_Ids!=null?vertex_Ids.transform(v1):v1.hashCode());
+
+		String res = "";
+		String attKey, attValue;
 		if(vertex_attributes!=null){
 			Map<Object, Vector<Object>> attributes = vertex_attributes.get(v1);
 			for(Object att : attributes.keySet()){
-				res += "\n\t"+ att;
-				Vector<Object> values = attributes.get(att);
-				if (values.size()>1) res +=" {";
-				for (int i = 0; i < values.size(); i++) {
-//					for (Object value :values ){
-					Object value = values.get(i);
-					String marker = (value instanceof String)?"\"":"";
-					res += ((values.size()>1)?(i!=0?",":""):" ") +  marker + value  +marker;
-				}
-				if (values.size()>1) res +="} ";
+				attKey = att.toString();
+				attValue = getAttValueString(attributes.get(att));
+				
+				if(attKey.equals("id")) continue;// && attValue.trim().equals(vid)) continue;
+				
+				res += "\n\t"+ att +attValue ;
 			}
 		}
-		
-		res +="\n]\n";
- 		return res; 
- 	}
+ 		return "node\n[\n\tid "+ vid + res + "\n]\n";
+	
+	}
+	
 	
 /*
  edge
@@ -93,7 +92,8 @@ public class GMLGraphWriter<V,E> extends GraphOutputStream<V, E>{
    label "Edge B to A"
   ]
   */
-	protected	String formatEdge(int v1, int v2 ,String weight){
+	@Override
+	protected	String formatEdge(String v1, String v2 ,String weight){
 		return ("edge\n[\n\tsource "+(v1) + "\n\ttarget " + (v2)+
 				(weight==null?"": ("\n\tvalue " +weight)) 	+ "\n]\n");
 	}

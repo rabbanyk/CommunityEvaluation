@@ -288,16 +288,16 @@ public class MeasuresUtil {
 //			return measures;
 		
 		if(doDegreeWeightedStructureBased)
-			measures.add(new GraphAGAM<V,E>(dataset.graph, dataset.getWeights(),Type.X2,ExternalOverlap.NodesWeightedByDegree , AdjustionMethod.ARI_ADJUSTED));
+			measures.add(new GraphAGAM<V,E>(dataset.graph, dataset.getWeightsTransformer(),Type.X2,ExternalOverlap.NodesWeightedByDegree , AdjustionMethod.ARI_ADJUSTED));
 		if(doEdgeStructureBased)   
-			measures.add(new GraphAGAM<V,E>(dataset.graph, dataset.getWeights(),Type.X2,ExternalOverlap.Edges , AdjustionMethod.ARI_ADJUSTED));
+			measures.add(new GraphAGAM<V,E>(dataset.graph, dataset.getWeightsTransformer(),Type.X2,ExternalOverlap.Edges , AdjustionMethod.ARI_ADJUSTED));
 	
 		if(doTransStructureBased)
 			for (AlgebricClusteringAgreement<V> algebricClusteringAgreement :algebricMeasures) 
-				measures.add(algebricClusteringAgreement.new StructureBasedClusteringAgreement<E>(StructureType.DEP_TRANS,dataset.graph, dataset.getWeights()));
+				measures.add(algebricClusteringAgreement.new StructureBasedClusteringAgreement<E>(StructureType.DEP_TRANS,dataset.graph, dataset.getWeightsTransformer()));
 		if(doSumStructureBased) 
 			for (AlgebricClusteringAgreement<V> algebricClusteringAgreement :algebricMeasures) 
-				measures.add(algebricClusteringAgreement.new StructureBasedClusteringAgreement<E>(StructureType.DEP_SUM,dataset.graph, dataset.getWeights()));
+				measures.add(algebricClusteringAgreement.new StructureBasedClusteringAgreement<E>(StructureType.DEP_SUM,dataset.graph, dataset.getWeightsTransformer()));
 
 		return measures;
 	}

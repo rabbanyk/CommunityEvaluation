@@ -26,11 +26,29 @@ public class GraphDataSet<V,E> {
 		public GraphDataSet(String name) {
 			this.name = name;
 		}
-		public Transformer<E, Double> getWeights(){
+		public Transformer<E, Double> getWeightsTransformer(){
 			return weights==null?null: TransformerUtils.mapTransformer(weights);
 		}
 		
+		
+		public Double setWeight(E key, Double value) {
+			if (weights ==null) weights = new HashMap<E, Double>();
+ 			return weights.put(key, value);
+		}
+		public HashMap<Object, Vector<Object>> getAttributesOfNode(V key) {
+			return attributes.get(key);
+		}
+//		public HashMap<Object, Vector<Object>> setAttributesOfNode(V key, HashMap<Object, Vector<Object>> value) {
+//			return attributes.put(key, value);
+//		}
+		public boolean addVertex(V vertex) {
+			return graph.addVertex(vertex);
+		}
+		public boolean addEdge(E e, V v1, V v2) {
+			return graph.addEdge(e, v1, v2);
+		}
 		public void addAttribute(V v, Object attributeKey, Object attValue){
+			if (attributes==null) attributes = new HashMap<V, HashMap<Object,Vector<Object>>>();
 			HashMap<Object, Vector<Object>> attributesMap = attributes.get(v);
 			if(attributesMap==null){
 				attributes.put(v,new HashMap<Object, Vector<Object>>());

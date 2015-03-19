@@ -19,28 +19,28 @@ public class PajekGraphWriter<V,E> extends GraphOutputStream<V, E>{
 	
 	//Attributes with more than one value, will be written as attKey {val1,val2,...}
 	@Override
-	protected String formatVetice(V v1,Transformer<V, Integer> vertex_Ids,Map<V, HashMap<Object,Vector<Object>>> vertex_attributes){
+	protected String formatVetice(V v1,Transformer<V, String> vertex_Ids,Map<V, HashMap<Object,Vector<Object>>> vertex_attributes){
+		String vid = ""+(vertex_Ids!=null?vertex_Ids.transform(v1):v1.hashCode());
+		String vlabel = "\"" +vid+ "\"" ;
+		
 		String res = "";
-		int vid = (vertex_Ids!=null?vertex_Ids.transform(v1):v1.hashCode());
-		res+= vid + "\t\"" + vid + "\"\n";
+		String attKey, attValue;
 		if(vertex_attributes!=null){
 			Map<Object, Vector<Object>> attributes = vertex_attributes.get(v1);
 			for(Object att : attributes.keySet()){
-				res += "\t"+ att;
-				Vector<Object> values = attributes.get(att);
-				if (values.size()>1) res +=" {";
-				for (Object value :values ){
-					String marker = (value instanceof String)?"\"":"";
-					res += ((values.size()>1)?",":" ") +  marker + value  +marker;
+				attKey = att.toString();
+				attValue = getAttValueString(attributes.get(att));
+				
+				if(attKey.equals("id"))// && attValue.trim().equals(vid)) 
+					continue;
+				if(attKey.equals("label")){
+					vlabel = attValue;
+					continue;
 				}
-				if (values.size()>1) res +="} ";
+				res += "\t"+ att +attValue ;
 			}
 		}
-		res +="\n";
- 		return res; 
- 		
-//		return (vertex_Ids.transform(v1) +"\t\"" + (vertex_Ids.transform(v1)) + "\"\n");
-	
+		return vid + "\t" + vlabel  + res + "\n";
 	}
 	//*Edges
 	@Override
@@ -48,7 +48,7 @@ public class PajekGraphWriter<V,E> extends GraphOutputStream<V, E>{
 		return ("*Edges     "  + "\n");
 	}
 	@Override
-	protected String formatEdge(int v1, int v2, String weight) {
+	protected String formatEdge(String v1, String v2, String weight) {
 		//16     21       4.5
 		return ((v1) + "\t" + (v2) +(weight==null?"": ("\t"+weight ))+ "\n");
 	}

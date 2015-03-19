@@ -233,7 +233,7 @@ public class CompareMethods {
 				outResultsR.write((dataset.name+( (dataset.weights== null)?",n":",y") +","+n+","+dataset.graph.getEdgeCount()+","+ 
 				att+","+ (community_runtimes.containsKey(att)?community_runtimes.get(att):0)*0.001	+"," + grouping.getNumberOfGroups()).getBytes());
 				if (doRelative){
-					for ( RelativeCriteria<V> relative: MeasuresUtil.<V,E>getRelativeAlternatives(dataset.graph, dataset.getWeights())){
+					for ( RelativeCriteria<V> relative: MeasuresUtil.<V,E>getRelativeAlternatives(dataset.graph, dataset.getWeightsTransformer())){
 						startTime = System.currentTimeMillis();
 						System.out.print(relative.getName()+" for "+att);
 						double val = relative.evaluate(grouping.getGroups());
@@ -284,7 +284,7 @@ public class CompareMethods {
 						
 						if(doAlgebric){
 							startTime = System.currentTimeMillis();
-							Pair<Vector<String>, Vector<Double>> tmp = AlgebricClusteringAgreement.getAllAgreements(dataset.graph, dataset.getWeights(), groupingComm.getGroups(), groupingAtt.getGroups(),doalpha, dotrans);
+							Pair<Vector<String>, Vector<Double>> tmp = AlgebricClusteringAgreement.getAllAgreements(dataset.graph, dataset.getWeightsTransformer(), groupingComm.getGroups(), groupingAtt.getGroups(),doalpha, dotrans);
 							for (int i = 0; i < tmp.first.size(); i++) {
 								double accu= tmp.second.get(i);
 								outResultsE.write(( "," + accu ).getBytes());
@@ -346,7 +346,7 @@ public class CompareMethods {
 //				System.out.print("------>  Graph "+dataset.name+" : ");
 //				System.out.print(dataset.graph.getVertexCount()+" nodes and " + dataset.graph.getEdgeCount() + " Edges");
 				
-				Modularity<V, E> modularity = new Modularity<V, E>(dataset.graph,dataset.getWeights());
+				Modularity<V, E> modularity = new Modularity<V, E>(dataset.graph,dataset.getWeightsTransformer());
 				Vector<CommunityMiner<V, E>> communityMiners =  AlgorithmUtils.<V, E>getSelectedCommunititMiners(overlapping);
 				initializePlot(dataset.name, communityMiners.size());
 				for (CommunityMiner<V, E> communityMiner : communityMiners) {
@@ -409,7 +409,7 @@ public class CompareMethods {
 						if(att.equals("value")) groundth = attClustering;
 						startTime = System.currentTimeMillis();
 
-						Vector< ClusteringAgreement<V>> res = MeasuresUtil.<V,E>getAgreementAlternatives(dataset.graph, dataset.getWeights(), overlapping);
+						Vector< ClusteringAgreement<V>> res = MeasuresUtil.<V,E>getAgreementAlternatives(dataset.graph, dataset.getWeightsTransformer(), overlapping);
 						for (ClusteringAgreement<V> clusteringAgreement : res) {
 							double accu=0;
 							if (att.equals("value")){
@@ -430,7 +430,7 @@ public class CompareMethods {
 						System.err.println(" classics ---- computed in "+(System.currentTimeMillis() - startTime)+" miliseconds )");
 						startTime = System.currentTimeMillis();
 
-						Pair<Vector<String>, Vector<Double>> tmp = AlgebricClusteringAgreement.getAllAgreements(dataset.graph, dataset.getWeights(), grouping.getGroups(), attClustering.getGroups());
+						Pair<Vector<String>, Vector<Double>> tmp = AlgebricClusteringAgreement.getAllAgreements(dataset.graph, dataset.getWeightsTransformer(), grouping.getGroups(), attClustering.getGroups());
 						for (int i = 0; i < tmp.first.size(); i++) {
 							double accu=0;
 							if (att.equals("value")){
@@ -478,7 +478,7 @@ public class CompareMethods {
 //				System.out.print("------>  Graph "+dataset.name+" : ");
 //				System.out.print(dataset.graph.getVertexCount()+" nodes and " + dataset.graph.getEdgeCount() + " Edges");
 				
-				Modularity<V, E> modularity = new Modularity<V, E>(dataset.graph,dataset.getWeights());
+				Modularity<V, E> modularity = new Modularity<V, E>(dataset.graph,dataset.getWeightsTransformer());
 
 				
 				Vector<String> atts = new Vector<String>();
@@ -563,7 +563,7 @@ public class CompareMethods {
 //						if(att.equals("label")) labels = dataset.getAttMap("label");
 //						if(att.equals("value")) groundth = attClustering;
 
-						Vector< ClusteringAgreement<V>> res = MeasuresUtil.getAgreementAlternatives(dataset.graph, dataset.getWeights());
+						Vector< ClusteringAgreement<V>> res = MeasuresUtil.getAgreementAlternatives(dataset.graph, dataset.getWeightsTransformer());
 						for (ClusteringAgreement<V> clusteringAgreement : res) {
 							System.err.println("-----"+clusteringAgreement.toLatexString());
 //							System.err.println(attClustering.getGroups());
@@ -630,7 +630,7 @@ public class CompareMethods {
 					if(att.equals("value")) groundth = attClustering;
 				}
 				
-				Modularity<V, E> modularity = new Modularity<V, E>(dataset.graph,dataset.getWeights());
+				Modularity<V, E> modularity = new Modularity<V, E>(dataset.graph,dataset.getWeightsTransformer());
 
 				ExternalIndexComparer<V, E> comparer = new ExternalIndexComparer<>(Mode.RAND2G);//FRAGKNEE);//RAND2G);
 				Vector<Vector<Set<V>>> randomClusters = comparer.getParts(dataset.graph, groundth.getGroups());
@@ -648,7 +648,7 @@ public class CompareMethods {
 								+ grouping.size()).getBytes());
 					
 
-					Vector< ClusteringAgreement<V>> res = MeasuresUtil.getAgreementAlternatives(dataset.graph, dataset.getWeights());
+					Vector< ClusteringAgreement<V>> res = MeasuresUtil.getAgreementAlternatives(dataset.graph, dataset.getWeightsTransformer());
 					for (ClusteringAgreement<V> clusteringAgreement : res) {
 //							System.err.println("-----"+clusteringAgreement.toLatexString());
 //							System.err.println(attClustering.getGroups());

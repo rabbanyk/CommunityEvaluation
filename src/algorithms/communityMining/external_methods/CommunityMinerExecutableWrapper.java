@@ -120,10 +120,10 @@ public abstract class CommunityMinerExecutableWrapper<V,E> extends CommunityMine
 		String network = getName()+tmpFilename, path = "./temp";
 		new File(path).mkdir();
 		
-		Map<V, Integer> vertexLabels = new HashMap<V, Integer>();
+		Map<V, String> vertexLabels = new HashMap<V, String>();
 		final Vector<V> vertexes = new Vector<V>(graph.getVertices());
 		for(int i = 0; i< vertexes.size(); i++){
-			vertexLabels.put(vertexes.elementAt(i), i+startIndexId);
+			vertexLabels.put(vertexes.elementAt(i), (i+startIndexId)+"");
 		}
 		
 		Grouping<V> detectedCommunities = null ;

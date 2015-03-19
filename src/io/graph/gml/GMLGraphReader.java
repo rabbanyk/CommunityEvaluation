@@ -36,68 +36,46 @@ import edu.uci.ics.jung.graph.util.Pair;
 public class GMLGraphReader <V,E> extends GraphInputStream<V, E> {
 	boolean directed = false;
 	
-	private Object parseValue(String v){
-		try{Integer d = Integer.parseInt(v);return d;}catch(Exception exception){}
-		try{Double d = Double.parseDouble(v);return d;}catch(Exception exception){}
-		if(v.startsWith("\"")) return v.substring(1, v.length()-1);
-		return v;
-	}
+	protected void parseEdge() throws IOException{
+		HashMap<String, Object> attributes = new HashMap<>();
+		String tmp;
+		while ((tmp = br.readLine()) != null && !tmp.contains("]"))if(tmp.length()>0 &&  !tmp.contains("[")){	
+				String[] vals = tmp.trim().split("[,\\s]+"); 
+				attributes.put(vals[0], parseValue(tmp.substring(tmp.indexOf(vals[0])+vals[0].length()).trim())); 
+			}
+		
+		getAddEdge(labels_vertices.get(attributes.get("source").toString()), 
+					labels_vertices.get(attributes.get("target").toString()), 
+					attributes.get("value") , attributes.get("id"));
 
+	}
 	
+	protected void parseNode() throws IOException{
+		String tmp;
+		HashMap<Object, Vector<Object>> attributes = new HashMap<>();
+		while ((tmp = br.readLine()) != null && !tmp.contains("]")) if(tmp.length()>0 &&  !tmp.contains("[")){	
+			String[] vals = tmp.trim().split("[,{}\\s]+");
+			
+			if (attributes.get(vals[0])==null)
+				attributes.put(vals[0], new Vector<Object>());
+			for (int i=1; i< vals.length; i++)
+				attributes.get(vals[0]).add(parseValue(vals[i].trim()));
+		}
+		Vector<Object> ids = (attributes.get("id"));
+		
+		V v = getAddVertex( ((ids!=null && ids.size()>0)?ids.get(0):null).toString());
+		nodeAttributes.put(v, attributes);
+	}
 
 	@Override
-	public Graph<V, E> readGraph(InputStream inputStream, Factory<V> nodeFactory,	Factory<E> edgeFactory) throws IOException {
-		Graph<V, E> graph = new SparseMultigraph<V, E>();
-		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-		int edgeId = 1, nodeId=1;
-		Object w;
-		String tmp;
-		while ((tmp = br.readLine()) != null) if(tmp.length()>0){		
-			if (tmp.contains("node")){
-				HashMap<Object, Vector<Object>> attributes = new HashMap<>();
-				while ((tmp = br.readLine()) != null && !tmp.contains("]")) if(tmp.length()>0 &&  !tmp.contains("[")){	
-					String[] vals = tmp.trim().split("[,{}\\s]+");
-//					attributes.put(vals[0], parseValue(tmp.substring(tmp.indexOf(vals[0])+vals[0].length()).trim())); 
-					if (attributes.get(vals[0])==null)
-						attributes.put(vals[0], new Vector<Object>());
-					for (int i=1; i< vals.length; i++)
-						attributes.get(vals[0]).add(vals[i].trim());
-				}
-				V v;
-				if((nodeFactory!= null))
-					v = nodeFactory.create();
-				else {
-					Vector<Object> ids = (attributes.get("id"));	
-					v = (V) (ids.size()>1?ids:(ids.size()>0?ids.get(0):nodeId++));
-					}
-				vertex_labels.put(v, v.toString());
-				labels_vertices.put(v.toString(),v);
-				nodeAttributes.put(v, attributes);
-				graph.addVertex(v);
-			}else if (tmp.contains("edge")){
-				HashMap<String, Object> attributes = new HashMap<>();
-				while ((tmp = br.readLine()) != null && !tmp.contains("]"))if(tmp.length()>0 &&  !tmp.contains("[")){	
-//						System.err.println("parsing: "+tmp);
-						String[] vals = tmp.trim().split("[,\\s]+"); 
-						attributes.put(vals[0], parseValue(tmp.substring(tmp.indexOf(vals[0])+vals[0].length()).trim())); 
-					}
-				E e = (edgeFactory!= null)?edgeFactory.create():(E)(nodeAttributes.get("id")!=null?nodeAttributes.get("id"):edgeId++);	
-				if( (w =  attributes.get("value"))!=null) {
-					if (weights ==null) weights = new HashMap<E, Double>();
-					weights.put(e, new Double(w.toString()));
-				}
-
-				graph.addEdge(e, labels_vertices.get(attributes.get("source").toString()),labels_vertices.get(attributes.get("target").toString()));
-		
-			}else if(tmp.contains("directed"))
-				directed = (tmp.contains("1"))?true:false;
-		}
-		
-		return graph;		
+	protected void parse(String tmp) throws IOException {
+		if (tmp.contains("node")){
+			parseNode();
+		}else if (tmp.contains("edge")){
+			parseEdge();
+		}else if(tmp.contains("directed"))
+			directed = (tmp.contains("1"))?true:false;		
 	}
-	
-	public Partitioning<V> groundTruth;
-
 	
 	
 }

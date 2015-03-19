@@ -92,7 +92,7 @@ public class Test {
 			
 			initializePlot(dataset.name, communityMiners.size());
 			
-			Modularity<V, E> modularity = new Modularity<V, E>(dataset.graph,dataset.getWeights());
+			Modularity<V, E> modularity = new Modularity<V, E>(dataset.graph,dataset.getWeightsTransformer());
 			for (CommunityMiner<V, E> communityMiner : communityMiners) {
 //				if(communityMiner instanceof BP && ((BP)communityMiner).sparse==false && dataset.graph.getEdgeCount()>10000) continue;
 				Map<String , String> evalMetrics = new  HashMap<String , String>(); 
@@ -153,7 +153,7 @@ public class Test {
 					if(att.equals("label")) labels = dataset.getAttMap("label");
 					if(att.equals("value")) groundth = attClustering;
 
-					Vector< ClusteringAgreement<V>> res = MeasuresUtil.<V,E>getAgreementAlternatives(dataset.graph, dataset.getWeights());
+					Vector< ClusteringAgreement<V>> res = MeasuresUtil.<V,E>getAgreementAlternatives(dataset.graph, dataset.getWeightsTransformer());
 					for (ClusteringAgreement<V> partiotioningAgreement : res) {
 						System.err.println(partiotioningAgreement);
 						double accu = partiotioningAgreement.getAgreement(grouping.getGroups(), attClustering.getGroups());

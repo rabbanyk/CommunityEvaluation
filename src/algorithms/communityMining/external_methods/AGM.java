@@ -47,12 +47,12 @@ public class AGM <V, E> extends CommunityMinerExecutableWrapper<V, E> {
 	
 	public  class AGAMPairsGraphWriter<V,E> extends PairsGraphWriter<V, E>{
 
-		protected  String  formatVeticeLabel(V v1,Transformer<V, Integer> vertex_Ids,Map<V, HashMap<Object,Vector<Object>>> vertex_attributes){
+		protected  String  formatVeticeLabel(V v1,Transformer<V, String> vertex_Ids,Map<V, HashMap<Object,Vector<Object>>> vertex_attributes){
 			return vertex_Ids.transform(v1) +"\t" + (vertex_Ids.transform(v1)) + "\n";
 		}
 
 		@Override
-		public void writeGraph(String path, Graph<V, E> graph, Transformer<V, Integer> vertex_Ids, Transformer<E, ? extends Number> weights,
+		public void writeGraph(String path, Graph<V, E> graph, Transformer<V, String> vertex_Ids, Transformer<E, ? extends Number> weights,
 				String weightsOutputFormat, Map<V, HashMap<Object, Vector<Object>>> vertex_attributes) throws IOException {
 			super.writeGraph(path, graph, vertex_Ids, weights, weightsOutputFormat, vertex_attributes);
 		

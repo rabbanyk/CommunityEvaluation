@@ -80,6 +80,9 @@ public class IOUtils  {
 						//this.weights = jungReader.getEdgeDescriptions(); TODO: weights?
 						return graph;
 					}
+					@Override
+					protected void parse(String tmp) throws IOException {
+					}
 				};
 			} catch (ParserConfigurationException | SAXException e) {
 				e.printStackTrace();
@@ -96,7 +99,7 @@ public class IOUtils  {
 	
 	
 	public static<V,E> void writeGML(String path, Graph<V, E> graph,
-			final Map<V, Integer> vertex_Ids, final  Map<E, ? extends Number> weights,	 
+			final Map<V, String> vertex_Ids, final  Map<E, ? extends Number> weights,	 
 			String weightsOutputFormat, Map<V, HashMap<Object,Vector<Object>>> vertex_attributes) throws IOException {
 		
 		GMLGraphWriter<V,E> graphWriter = new GMLGraphWriter<V, E>();
