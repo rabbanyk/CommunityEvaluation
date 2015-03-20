@@ -41,7 +41,7 @@ graph
  * 
  */
 public class GMLGraphWriter<V,E> extends GraphOutputStream<V, E>{
-
+	String tokenizer ="\t";
 	/*
 	graph
 		[
@@ -76,10 +76,10 @@ public class GMLGraphWriter<V,E> extends GraphOutputStream<V, E>{
 				
 				if(attKey.equals("id")) continue;// && attValue.trim().equals(vid)) continue;
 				
-				res += "\n\t"+ att +attValue ;
+				res += "\n" + tokenizer + att +tokenizer+attValue ;
 			}
 		}
- 		return "node\n[\n\tid "+ vid + res + "\n]\n";
+ 		return "node\n[\n"+tokenizer+"id"+tokenizer+ vid + res + "\n]\n";
 	
 	}
 	

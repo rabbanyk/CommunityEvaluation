@@ -32,9 +32,9 @@ public abstract class GraphInputStream <V,E> {
 	protected Map<V, String> vertex_labels = new HashMap<V,String>();
 	protected Map<E, Double> weights;
 
-	public String transform(V vertex){
-		return vertex_labels.get(vertex);
-	}
+//	public String transform(V vertex){
+//		return vertex_labels.get(vertex);
+//	}
 	public HashMap<V, HashMap<Object, Vector<Object>>> getNodeAttributes() {
 		return nodeAttributes;
 	}
@@ -51,9 +51,9 @@ public abstract class GraphInputStream <V,E> {
 	}
 	
 	
-	public Map<V, String> getVertex_labels() {
-		return vertex_labels;
-	}
+//	public Map<V, String> getVertex_labels() {
+//		return vertex_labels;
+//	}
 
 
 	public Map<String, V> getLabels_vertices() {

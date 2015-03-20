@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Vector;
 
+import javafx.scene.control.Labeled;
+
 import org.apache.commons.collections15.Factory;
 
 import edu.uci.ics.jung.graph.Graph;
@@ -16,12 +18,23 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
 
 
 public class PajekGraphReader<V,E> extends GraphInputStream<V, E> {
-	{
+	protected boolean labeled ;
+	protected String edgeListStartIndicator= "Edges";
+	boolean edgeMode  = false;
+	
+	public PajekGraphReader(){
 		commentIndicator = "*";
 		tokenizationPattern = "[\\s]+";
+		labeled = true;
 	}
-	protected String edgeListStartIndicator = "Edges";
-	boolean edgeMode = false;
+	
+	public PajekGraphReader(boolean labeled, String tokenizationPattern, String commentIndicator) {
+		super();
+		this.labeled = labeled;
+		this.tokenizationPattern = tokenizationPattern;
+		this.commentIndicator = commentIndicator;
+	}
+
 	@Override
 	public void parse(String tmp) {
 		if (tmp.startsWith(commentIndicator)){
@@ -50,7 +63,8 @@ public class PajekGraphReader<V,E> extends GraphInputStream<V, E> {
 //	V v = getAddVertex( ((ids!=null && ids.size()>0)?ids.get(0):null).toString());
 	
 	
-	// Assuming format is : id "label" att1 att1val att2 att2val ...
+	// Assuming  if labeled format is : id "label" att1 att1val att2 att2val ...
+	// if not labeled : id att1val att2val ...
 	protected void parseNode(String line){
 		String[] vals = line.split(tokenizationPattern);
 		if (vals.length<1) return;
@@ -58,16 +72,16 @@ public class PajekGraphReader<V,E> extends GraphInputStream<V, E> {
 
 		HashMap<Object, Vector<Object>> attributes = new HashMap<>();
 		
-		if (vals.length>1){
+		if (vals.length>1 && labeled){
 			attributes.put("label", new Vector<Object>());
 			attributes.get("label").add(parseValue(vals[1]));
 		}
 		
 		Object attKey, attVal;
 		String[] attVals; 
-		for (int ia=2;ia+1<vals.length;ia+=2){
-			attKey = parseValue(vals[ia]);
-			attVals = vals[ia+1].split("[,{}\\s]+");
+		for (int ia=labeled?2:1 ; ia +(labeled?1:0)<vals.length;ia+=(labeled?2:1)){
+			attKey = labeled?parseValue(vals[ia]):ia;
+			attVals = vals[ia+(labeled?1:0)].split("[,{}\\s]+");
 //			if (attributes.get(attKey)==null)
 			attributes.put(attKey, new Vector<Object>());
 			for (String val: attVals){

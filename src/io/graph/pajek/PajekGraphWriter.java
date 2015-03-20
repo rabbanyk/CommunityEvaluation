@@ -11,12 +11,28 @@ import org.apache.commons.collections15.Transformer;
 import edu.uci.ics.jung.graph.Graph;
 
 public class PajekGraphWriter<V,E> extends GraphOutputStream<V, E>{
+	
+	protected String tokenizer ="\t";
+	protected String commentIndicator = "*";
+	protected boolean labeled = true;
 	@Override
 	protected String verticesMetaData(Vector<V> vertexes){
 		//*Vertices     26
-		return ("*Vertices     " + (vertexes.size()) + "\n");
+		return (commentIndicator+"Vertices     " + (vertexes.size()) + "\n");
 	}
-	
+	public PajekGraphWriter() {
+		super();
+		this.tokenizer ="\t";
+		this.labeled = true;
+	}
+
+	public PajekGraphWriter(String tokenizer, boolean labeled, String commentIndicator) {
+		super();
+		this.tokenizer = tokenizer;
+		this.labeled = labeled;
+		this.commentIndicator = commentIndicator;
+	}
+
 	//Attributes with more than one value, will be written as attKey {val1,val2,...}
 	@Override
 	protected String formatVetice(V v1,Transformer<V, String> vertex_Ids,Map<V, HashMap<Object,Vector<Object>>> vertex_attributes){
@@ -37,20 +53,20 @@ public class PajekGraphWriter<V,E> extends GraphOutputStream<V, E>{
 					vlabel = attValue;
 					continue;
 				}
-				res += "\t"+ att +attValue ;
+				res += (labeled?(tokenizer+ att):"") +tokenizer +attValue ;
 			}
 		}
-		return vid + "\t" + vlabel  + res + "\n";
+		return vid + (labeled?(tokenizer + vlabel):"")  + res + "\n";
 	}
 	//*Edges
 	@Override
 	protected String edgeMetaData(){
-		return ("*Edges     "  + "\n");
+		return (commentIndicator+"Edges     "  + "\n");
 	}
 	@Override
 	protected String formatEdge(String v1, String v2, String weight) {
 		//16     21       4.5
-		return ((v1) + "\t" + (v2) +(weight==null?"": ("\t"+weight ))+ "\n");
+		return ((v1) + tokenizer + (v2) +(weight==null?"": (tokenizer+weight ))+ "\n");
 	}
 	
 

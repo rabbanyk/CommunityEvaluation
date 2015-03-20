@@ -157,17 +157,20 @@ public class GraphDataSet<V,E> {
 			return res;
 		}
 		
+		
 		public synchronized void printStats(){
 			System.out.print(">>>>>>>>>>>>>>>>>> Graph "+name+" : ");
 			System.out.print(graph.getVertexCount()+" nodes and " + graph.getEdgeCount() + " Edges");
 			if (weights!= null) System.out.print(" weighted ");
 			if (attributes!= null) System.out.print(" attributed ");
 			System.out.println();
-			
-//			if(graph.getVertexCount()<500){
-//				System.out.println("Graph: " + graph);
-//				if (weights!= null) System.out.println("-- weights: " + weights);
-//				if (attributes!= null) System.out.println("-- attributes: " + attributes);
-//			}
+		}
+		public synchronized void print(){
+			printStats();
+			if(graph.getVertexCount()<500){
+				System.out.println("Graph: " + graph);
+				if (weights!= null) System.out.println("-- weights: " + weights);
+				if (attributes!= null) System.out.println("-- attributes: " + attributes);
+			}
 		}
 }

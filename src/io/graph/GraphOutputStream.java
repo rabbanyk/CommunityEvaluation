@@ -68,12 +68,17 @@ public abstract class GraphOutputStream<V, E> {
 			String weightsOutputFormat, Map<V, HashMap<Object, Vector<Object>>> vertex_attributes) throws IOException {
 
 		if (vertex_Ids == null) {
-			int counter = 1;
 			HashMap<V, String> tmpIds = new HashMap<>();
-			if (graph.getVertexCount() > 0 && graph.getVertices().iterator().next() instanceof Integer) {
-				for (V v : graph.getVertices())
-					tmpIds.put(v,  v.toString());
-			} else {
+
+			//Can use the nodes themselves as ids?
+			for (V v : graph.getVertices())
+				tmpIds.put(v,  v.toString());
+
+//			Only if integer? if (graph.getVertexCount() > 0 && graph.getVertices().iterator().next() instanceof Integer) {
+			if (new HashSet<>(tmpIds.keySet()).size() != graph.getVertexCount()){ 
+			// If not unique, assign ids to nodes
+				int counter = 1;
+				tmpIds = new HashMap<>();
 				for (V v : graph.getVertices())
 					tmpIds.put(v, ""+counter++);
 			}
@@ -165,13 +170,13 @@ public abstract class GraphOutputStream<V, E> {
 	
 	protected String getAttValueString(Vector<Object> values){
 		String res = "";
-		if (values.size()>1) res +=" {";
+		if (values.size()>1) res +="{";
 		for (int i = 0; i < values.size(); i++) {
 			Object value = values.get(i);
 			String marker = (value instanceof String)?"\"":"";
-			res += ((values.size()>1)?(i!=0?",":""):" ") +  marker + value  +marker;
+			res += (i!=0?",":"")+  marker + value  +marker;
 		}
-		if (values.size()>1) res +="} ";
+		if (values.size()>1) res +="}";
 		return res;
 	}
 

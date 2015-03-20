@@ -10,17 +10,15 @@ import io.graph.pajek.PajekGraphWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
 
-import org.apache.commons.collections15.TransformerUtils;
-
+import util.IOUtils;
 import data.GraphDataSet;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseGraph;
 
 public class Test {
 
-	public static void testWriters(){
+	private static GraphDataSet<String, String> getTestDataset(){
 		GraphDataSet<String, String>  dataset = new GraphDataSet<String, String>("test");
 		dataset.graph = new SparseGraph<String, String>() ;
 		dataset.graph.addEdge("ab","a", "b");
@@ -47,38 +45,71 @@ public class Test {
 		dataset.addAttribute("d", "att1" ,4);
 		dataset.addAttribute("e", "att1" ,5);
 		
-		Map<String, String> vertex_Ids = new  HashMap<String,String>();
-		vertex_Ids.put("a", ""+1);
-		vertex_Ids.put("b", ""+2);
-		vertex_Ids.put("c", ""+3);
-		vertex_Ids.put("d", ""+4);
-		vertex_Ids.put("e", ""+5);
-		for(String v : vertex_Ids.keySet()){
-			dataset.addAttribute(v,"id", vertex_Ids.get(v));
-		}
+		return dataset;
+	}
 
-		System.err.println(dataset.attributes);
+
+	public static <V,E> void test(GraphDataSet<V,E>  dataset){
+		dataset.print();
+		Map<V, String> vertex_Ids = null;
+//				new  HashMap<V,String>();
+//		int counter = 1;
+//		for (V v : dataset.graph.getVertices())
+//			vertex_Ids.put(v, ""+(counter++));
+	
+		try {
+			IOUtils.write("dev_temp/testg.pairs", dataset, vertex_Ids);
+			IOUtils.write("dev_temp/testg.net", dataset, vertex_Ids);
+			IOUtils.write("dev_temp/testg.gml", dataset, vertex_Ids);
+			IOUtils.write("dev_temp/testg.plosone", dataset, vertex_Ids);
+
+			dataset = IOUtils.loadGraphDataset("dev_temp/testg.pairs");
+			IOUtils.write("dev_temp/testg_n.pairs", dataset, dataset.getLabels());
+			dataset.print();
+
+			dataset = IOUtils.loadGraphDataset("dev_temp/testg.net");
+			IOUtils.write("dev_temp/testg_n.net", dataset, dataset.getLabels());
+			dataset = IOUtils.loadGraphDataset("dev_temp/testg.gml");
+			IOUtils.write("dev_temp/testg_n.gml", dataset, dataset.getLabels());
+			dataset = IOUtils.loadGraphDataset("dev_temp/testg.plosone");
+			dataset.print();
+			IOUtils.write("dev_temp/testg_n.plosone", dataset, dataset.getLabels());
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static <V,E> void testWriters(GraphDataSet<V,E>  dataset){
+		Map<V, String> vertex_Ids = new  HashMap<V,String>();
+		int counter = 1;
+		for (V v : dataset.graph.getVertices())
+			vertex_Ids.put(v, ""+(counter++));
+	
+//		for(V v : vertex_Ids.keySet()){
+//			dataset.addAttribute(v,"id", vertex_Ids.get(v));
+//		}
+//		System.err.println(dataset.attributes);
 
 		try {
-			GraphOutputStream<String, String> graphWriter = new PairsGraphWriter<String, String>()	;
+			GraphOutputStream<V,E> graphWriter = new PairsGraphWriter<V,E>()	;
 //			graphWriter.writeGraph("dev_temp/testGraphF.wpairs", dataset.graph ,  dataset.getAttMap("label") , dataset.weights, "%.0f", dataset.attributes);
-			graphWriter.writeGraph("dev_temp/testGraphF.wpairs", dataset);
-//			graphWriter.writeGraph("dev_temp/testGraphF.wpairs", dataset, vertex_Ids);
+			graphWriter.writeGraph("dev_temp/test.wpairs", dataset);
+			graphWriter.writeGraph("dev_temp/testIded.wpairs", dataset, vertex_Ids);
 
-			graphWriter = new GMLGraphWriter<String, String>()	;
+			graphWriter = new GMLGraphWriter<V,E>()	;
 //			graphWriter.writeGraph("dev_temp/testGraphF.gml", dataset.graph ,  dataset.getAttMap("label") ,  dataset.weights, "%.0f", dataset.attributes);
-			graphWriter.writeGraph("dev_temp/testGraphF.gml", dataset);
-//			graphWriter.writeGraph("dev_temp/testGraphF.gml", dataset, vertex_Ids);
+			graphWriter.writeGraph("dev_temp/test.gml", dataset);
+			graphWriter.writeGraph("dev_temp/testIded.gml", dataset, vertex_Ids);
 //			graphWriter.writeGraph("dev_temp/testGraphF.gml", dataset, dataset.getAttMap("label"));
 
-
-
-			graphWriter = new PajekGraphWriter<String, String>()	;
+			graphWriter = new PajekGraphWriter<V,E>()	;
 //			graphWriter.writeGraph("dev_temp/testGraphF.net", dataset.graph ,   dataset.getAttMap("label") ,  dataset.weights, "%.0f", dataset.attributes);
-			graphWriter.writeGraph("dev_temp/testGraphF.net", dataset);
-//			graphWriter.writeGraph("dev_temp/testGraphF.net", dataset, vertex_Ids);
+			graphWriter.writeGraph("dev_temp/test.net", dataset);
+			graphWriter.writeGraph("dev_temp/testIded.net", dataset, vertex_Ids);
 //			graphWriter.writeGraph("dev_temp/testGraphF.net", dataset, dataset.getAttMap("label"));
-
+			
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -88,32 +119,31 @@ public class Test {
 		try {
 			Graph< V, E> g ;
 			GraphDataSet<V,E> dataset=null;
-		
 			
 			GraphInputStream<V,E> graphReader = new PairsGraphReader<V,E>()	;
-			g = graphReader.readGraph("dev_temp/testGraphF.wpairs");
+			g = graphReader.readGraph("dev_temp/testg.pairs");
 			System.err.println(graphReader.getNodeAttributes());
 			
 			GraphOutputStream<V,E> graphWriter = new PairsGraphWriter<V,E>()	;
-			graphWriter.writeGraph("dev_temp/testGraphF_rew.wpairs", g , graphReader.vertex_labels ,
+			graphWriter.writeGraph("dev_temp/testg_n.pairs", g , graphReader.vertex_labels ,
 					graphReader.getWeights(), "%.0f",
 					graphReader.getNodeAttributes());
 		
 			graphReader = new GMLGraphReader<V,E>();
-			g = graphReader.readGraph("dev_temp/testGraphF.gml");
+			g = graphReader.readGraph("dev_temp/testg.gml");
 			System.err.println(graphReader.getNodeAttributes());
 
 			graphWriter = new GMLGraphWriter<V,E>()	;
-			graphWriter.writeGraph("dev_temp/testGraphF_rew.gml", g , graphReader.vertex_labels  ,
+			graphWriter.writeGraph("dev_temp/testg_n.gml", g , graphReader.vertex_labels  ,
 					graphReader.getWeights(), "%.0f",
 					graphReader.getNodeAttributes());
 
 			graphReader = new PajekGraphReader<V,E>();
-			g = graphReader.readGraph("dev_temp/testGraphF.net");
+			g = graphReader.readGraph("dev_temp/testg.net");
 			System.err.println(graphReader.getNodeAttributes());
 
 			graphWriter = new PajekGraphWriter<V,E>()	;
-			graphWriter.writeGraph("dev_temp/testGraphF_rew.net", g , graphReader.vertex_labels  ,
+			graphWriter.writeGraph("dev_temp/testg_n.net", g , graphReader.vertex_labels  ,
 					graphReader.getWeights(), "%.0f",
 					graphReader.getNodeAttributes());
 			
@@ -124,8 +154,6 @@ public class Test {
 	//Testing
 	public static void main(String[] args){
 		//TODO: debug
-		testWriters();
-		testReaders();
-	
+		test(getTestDataset());
 	}
 }
