@@ -53,15 +53,6 @@ public class PajekGraphReader<V,E> extends GraphInputStream<V, E> {
 		super.init();
 		edgeMode = false;
 	}
-//		if (attributes.get(vals[0])==null)
-//			attributes.put(vals[0], new Vector<Object>());
-//		for (int i=1; i< vals.length; i++)
-//			attributes.get(vals[0]).add(parseValue(vals[i].trim()));
-//	}
-//	Vector<Object> ids = (attributes.get("id"));
-//	
-//	V v = getAddVertex( ((ids!=null && ids.size()>0)?ids.get(0):null).toString());
-	
 	
 	// Assuming  if labeled format is : id "label" att1 att1val att2 att2val ...
 	// if not labeled : id att1val att2val ...

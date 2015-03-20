@@ -52,7 +52,7 @@ public class Test {
 	public static <V,E> void test(GraphDataSet<V,E>  dataset){
 		dataset.print();
 		Map<V, String> vertex_Ids = null;
-//				new  HashMap<V,String>();
+//				new  HashMap<V,String>(); //Give explicit ids 
 //		int counter = 1;
 //		for (V v : dataset.graph.getVertices())
 //			vertex_Ids.put(v, ""+(counter++));
@@ -151,9 +151,8 @@ public class Test {
 			e.printStackTrace();
 		}
 	}
-	//Testing
+	
 	public static void main(String[] args){
-		//TODO: debug
 		test(getTestDataset());
 	}
 }

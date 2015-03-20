@@ -49,13 +49,11 @@ public abstract class GraphOutputStream<V, E> {
 		
 		if (vertex_Ids==null){
 			Map<V, String> tmp = dataset.getAttMap("id");
-//			System.err.println(tmp);
 
 			if (new HashSet<>(tmp.keySet()).size() == dataset.graph.getVertexCount())
 				vertex_Ids = tmp;
 			else {
 				tmp = dataset.getAttMap("label");
-//				System.err.println(tmp);
 				if (new HashSet<>(tmp.keySet()).size() == dataset.graph.getVertexCount())
 					vertex_Ids = tmp;
 			}			
@@ -125,7 +123,6 @@ public abstract class GraphOutputStream<V, E> {
 				outputStream.write(formatEdge(id1, neighs.get(j),
 						weights == null ? null : String.format(weightsOutputFormat != null ? weightsOutputFormat : "%s", weights.transform(neigEdges.get(j))))
 						.getBytes());
-			// ((id1) + "\t" + (neighs.get(j)) +(weights==null?"": "\t"+String.format(weightsOutputFormat,weights.transform(neigEdges.get(j)))) + "\n");
 		}
 		outputStream.write(graphEnd().getBytes());
 

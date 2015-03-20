@@ -18,10 +18,6 @@ public abstract class GroupingWriter <V> {
 			writeGrouping(path, grouping.getGroups(), vertex_Ids);
 	}
 
-//	public void writeGraph(String path, Vector<Set<V> >  grouping,
-//			final Map<V, Integer> vertex_Ids) throws IOException {
-//			writeGrouping(path, grouping , 	vertex_Ids==null?null: TransformerUtils.mapTransformer(vertex_Ids));
-//	}
 	public abstract void  writeGrouping(String path, Vector<Set<V> > grouping
 			, Map<V, String> vertex_Ids ) throws IOException ;
 

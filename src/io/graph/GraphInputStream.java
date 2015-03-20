@@ -32,9 +32,6 @@ public abstract class GraphInputStream <V,E> {
 	protected Map<V, String> vertex_labels = new HashMap<V,String>();
 	protected Map<E, Double> weights;
 
-//	public String transform(V vertex){
-//		return vertex_labels.get(vertex);
-//	}
 	public HashMap<V, HashMap<Object, Vector<Object>>> getNodeAttributes() {
 		return nodeAttributes;
 	}
@@ -51,11 +48,6 @@ public abstract class GraphInputStream <V,E> {
 	}
 	
 	
-//	public Map<V, String> getVertex_labels() {
-//		return vertex_labels;
-//	}
-
-
 	public Map<String, V> getLabels_vertices() {
 		return labels_vertices;
 	}
@@ -134,8 +126,6 @@ public abstract class GraphInputStream <V,E> {
 		E e = null;
 		if(graph.getNeighbors(v1) != null && graph.getNeighbors(v1).contains(v2))
 			return graph.findEdge(v1, v2); 
-		
-//		System.err.println("getAddEdge::: "+v1+" "+v2+" "+w);
 		
 		if(edgeFactory != null)
 			e = edgeFactory.create();

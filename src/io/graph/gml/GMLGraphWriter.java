@@ -37,8 +37,6 @@ graph
   edge
   ...
 ]
- * 
- * 
  */
 public class GMLGraphWriter<V,E> extends GraphOutputStream<V, E>{
 	String tokenizer ="\t";
@@ -55,13 +53,13 @@ public class GMLGraphWriter<V,E> extends GraphOutputStream<V, E>{
 		return "]\n";
 	}
 	
-/*
- *  node
-  [
-   id A
-   label "Node A"
-  ]
- */
+	/*
+	 *  node
+	  [
+	   id A
+	   label "Node A"
+	  ]
+	 */
 	//Attributes with more than one value, will be written as attKey {val1,val2,...}
 	protected String formatVetice(V v1,Transformer<V, String> vertex_Ids,Map<V, HashMap<Object,Vector<Object>>> vertex_attributes){
 		String vid = ""+(vertex_Ids!=null?vertex_Ids.transform(v1):v1.hashCode());
@@ -84,14 +82,14 @@ public class GMLGraphWriter<V,E> extends GraphOutputStream<V, E>{
 	}
 	
 	
-/*
- edge
-  [
-   source B
-   target A
-   label "Edge B to A"
-  ]
-  */
+	/*
+	 edge
+	  [
+	   source B
+	   target A
+	   label "Edge B to A"
+	  ]
+	  */
 	@Override
 	protected	String formatEdge(String v1, String v2 ,String weight){
 		return ("edge\n[\n\tsource "+(v1) + "\n\ttarget " + (v2)+

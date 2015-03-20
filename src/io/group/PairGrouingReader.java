@@ -38,9 +38,6 @@ public class PairGrouingReader<V> extends GroupingReader<V>{
 			
 			clusterId = Integer.parseInt(row[ComIdfirst?0:1]);
 			tmp = row[ComIdfirst?1:0];
-//				clusterId = Integer.parseInt( tmp.split("\\s+")[1]);
-//				tmp = tmp.split("\\s+")[0];
-			
 			
 			while(clusterId >= partitioning.getNumberOfGroups())
 				partitioning.addGroup(new HashSet<V>());

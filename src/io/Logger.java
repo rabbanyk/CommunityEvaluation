@@ -13,11 +13,8 @@ import java.text.SimpleDateFormat;
 public class Logger {
 
 	public enum DebugMode{result, brief, normal, detailed}
-
 	static DebugMode log_level = DebugMode.detailed;
 	static OutputStreamWriter logFile;
-//	static int counter = 0;
-	
 	static DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
 	public Logger(){
@@ -26,9 +23,7 @@ public class Logger {
 			logFile = new OutputStreamWriter( new FileOutputStream("logs/log"+System.currentTimeMillis()+".log"),"UTF-16");
 		} catch (FileNotFoundException e) {
 			System.err.println("No logging available, create a logs folder to record the logs.");
-//			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -40,10 +35,8 @@ public class Logger {
 			logFile = new OutputStreamWriter( new FileOutputStream(path + "/res"+formatter.format(System.currentTimeMillis())+".txt"),"UTF-16");
 		} catch (FileNotFoundException e) {
 			System.err.println("No logging available, create a logs folder to record the logs.");
-//	ls
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -52,22 +45,6 @@ public class Logger {
 		log_level = level;
 	}
 
-//	public static void log(Object s){
-//		try {
-//			logFile.write(s.toString().getBytes());
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}	
-//	}
-//	
-//	public static void logln(Object s){
-//		try {
-//			logFile.write((s+"\n").getBytes());
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}	
-//	}
-//	
 	public static void log(Object s, DebugMode level){
 		if(logFile == null || level.compareTo(log_level) > 0) return;
 		try {
