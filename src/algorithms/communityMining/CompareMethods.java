@@ -70,7 +70,8 @@ public class CompareMethods {
 //		"./exps/fbtest/";
 //		"./exps/realBenchmarks/";
 		if (args.length ==0)
-			args = new String[] {"/home/reihaneh/projects/Datasets/facebook100/facebook100/data/" , "-a"};
+//			args = new String[] {"/home/reihaneh/projects/Datasets/facebook100/facebook100/data/" , "-a"};
+			args = new String[] {"/home/reihaneh/projects/Datasets/PlosOneGenerator/" , "-a"};
 
 //			args = new String[] {"/home/reihaneh/projects/exps/fbtest/data/com/" , "-a"};
 
