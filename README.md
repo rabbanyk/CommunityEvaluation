@@ -8,6 +8,7 @@ Which includes:
   * see `measure\criteria`
 * Agreement indices to compare two given community structures (e.g. Adjusted Rand Index, F-measure, Normalized Mutual Information, etc.), presented in following paper:
   * [R Rabbany et al., *Generalization of Clustering Agreements and Distances for Overlapping Clusters and Network Communities*; CORR 2014](http://arxiv.org/abs/1412.2601)
+  * see [supplementary materials](http://webdocs.cs.ualberta.ca/~rabbanyk/external_indexes/)
   * see `measure\cluster`
   * see a summary and examples in this [ipython notebook](http://nbviewer.ipython.org/github/rabbanyk/CommunityEvaluation/blob/master/Clustering%20Agreement.ipynb#)
 * Implementation of the TopLeaders algorithm presented in:
