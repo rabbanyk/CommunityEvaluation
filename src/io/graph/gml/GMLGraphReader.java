@@ -20,7 +20,6 @@ import javax.print.attribute.standard.Compression;
 import org.apache.commons.collections15.Factory;
 import org.apache.commons.collections15.Transformer;
 
-import com.kenai.jaffl.provider.jffi.NumberUtil;
 
 import algorithms.communityMining.topleaders.data.Partitioning;
 import edu.uci.ics.jung.graph.Graph;

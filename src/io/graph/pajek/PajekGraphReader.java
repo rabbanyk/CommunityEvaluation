@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Vector;
 
-import javafx.scene.control.Labeled;
 
 import org.apache.commons.collections15.Factory;
 

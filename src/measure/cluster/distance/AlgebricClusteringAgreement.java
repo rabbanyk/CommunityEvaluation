@@ -11,7 +11,6 @@ import java.util.Vector;
 
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.functors.MapTransformer;
-import org.python.modules.math;
 
 import algorithms.communityMining.data.Grouping;
 import measure.cluster.agreement.ClusteringAgreement;
@@ -45,7 +44,7 @@ public class AlgebricClusteringAgreement<T> extends ClusteringAgreement<T>{
 		Vector<E> edges = new Vector<E> (G.getEdges());
 		for (int i = 0; i < edges.size(); i++) {
 			E e = edges.get(i);
-			double w =  ( weights==null? 1 : math.sqrt((Double)weights.transform(e)));
+			double w =  ( weights==null? 1 : Math.sqrt((Double)weights.transform(e)));
 			Vector<T> nodes = new Vector<T> ( G.getIncidentVertices(e));
 			N.set(node_ids.transform(nodes.get(0)), i, w  );
 			N.set(node_ids.transform(nodes.get(1)), i, w * (directed?-1:1) );

@@ -32,7 +32,6 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.functors.ConstantTransformer;
 import org.apache.commons.collections15.functors.MapTransformer;
 import org.apache.commons.collections15.map.LazyMap;
-import org.python.modules.synchronize;
 
 import algorithms.communityMining.data.Grouping;
 import algorithms.communityMining.topleaders.data.Partitioning;

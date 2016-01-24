@@ -8,7 +8,6 @@ import measure.cluster.agreement.ClusteringAgreement;
 import measure.cluster.agreement.test;
 
 import org.apache.commons.collections15.Transformer;
-import org.python.modules.math;
 
 import util.DatasetUtils;
 import data.AbstractMatrix;
@@ -399,7 +398,7 @@ public class AlgebricClusteringDistance {
 	    
 	    double vi = (2*Huv-(Hu+Hv) )/Math.log(n);
 	    double nmi_sum = Iuv==0?0: 2*Iuv/(Hu+Hv); // VM in sklearn
-	    double nmi_sqrt = Iuv==0?0:Iuv/math.sqrt(Hu*Hv); // NMI in sklearn
+	    double nmi_sqrt = Iuv==0?0:Iuv/Math.sqrt(Hu*Hv); // NMI in sklearn
 	    
 	    return new D(vi,nmi_sum, nmi_sqrt);
 	}

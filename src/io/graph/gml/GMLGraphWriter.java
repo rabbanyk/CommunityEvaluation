@@ -7,7 +7,6 @@ import java.util.Vector;
 import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 
 import org.apache.commons.collections15.Transformer;
-import org.python.modules.errno;
 
 import edu.uci.ics.jung.graph.Graph;
 import io.graph.GraphOutputStream;

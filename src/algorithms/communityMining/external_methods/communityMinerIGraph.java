@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.apache.commons.collections15.Transformer;
-import org.python.modules.synchronize;
 
 import algorithms.communityMining.data.Grouping;
 import edu.uci.ics.jung.graph.Graph;

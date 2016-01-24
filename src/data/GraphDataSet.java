@@ -8,9 +8,6 @@ import java.util.Vector;
 
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.TransformerUtils;
-import org.apache.commons.collections15.comparators.ComparableComparator;
-import org.apache.commons.collections15.functors.MapTransformer;
-import org.python.modules.synchronize;
 
 import algorithms.communityMining.data.Grouping;
 import edu.uci.ics.jung.algorithms.cluster.WeakComponentClusterer;
