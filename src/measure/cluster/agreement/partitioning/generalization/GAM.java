@@ -63,22 +63,7 @@ public class GAM<V> extends PartiotioningAgreement<V>{
 	
 	protected double r(Vector<Set<V>> U, Vector<Set<V>> V) {
 		double n = 0, d = 0;
-		
-//		//TODO: testing remove these
-//		int m=0;
-//		for (int i = 0; i < U.size(); i++) {
-//			Set<V> u = U.get(i);
-//			m+=u.size();
-//		}//System.err.println(m);
-//		double[][] e = new double[U.size()][V.size()];
-//		for (int i = 0; i < U.size(); i++) {
-//			Set<V> u = U.get(i);
-//			for (int j = 0; j < V.size(); j++) {
-//				Set<V> v = V.get(j);
-//				e[i][j] = (u.size() * v.size() *1.) / m;
-//			}
-//		} 
-//		//TODO: testing remove till here
+	
 //		for (Set<V> v : V) {
 		for (int j = 0; j < V.size(); j++) {
 			Set<V> v = V.get(j);

@@ -27,7 +27,13 @@ import measure.cluster.agreement.partitioning.classics.VI;
 import measure.cluster.agreement.partitioning.generalization.AGAM;
 import measure.cluster.agreement.partitioning.generalization.AGAMA;
 import measure.cluster.agreement.partitioning.generalization.GAM;
+import measure.cluster.agreement.partitioning.generalization.GraphAGAM;
+import measure.cluster.agreement.partitioning.generalization.GAM.Type;
+import measure.cluster.agreement.partitioning.generalization.GraphAGAM.AdjustionMethod;
+import measure.cluster.agreement.partitioning.generalization.GraphAGAM.ExternalOverlap;
 import measure.cluster.distance.AlgebricClusteringAgreement;
+import measure.cluster.distance.AlgebricClusteringAgreement.AType;
+import measure.cluster.overlapping.OCI;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseGraph;
 
@@ -152,8 +158,9 @@ public class test {
 	System.err.println(groundTruth);
 	Vector<Set<Integer>> p1 = dataset.getGrouping("U1").getGroups();
 	Vector<Set<Integer>> p2 = dataset.getGrouping("U2").getGroups();
-		
-		for (ClusteringAgreement<Integer> meas : MeasuresUtil.<Integer,Integer>getAgreementAlternatives(g, null)) {
+	System.err.println(p2);
+	System.err.println(groundTruth);
+		for (ClusteringAgreement<Integer> meas : MeasuresUtil.<Integer,Integer>getOverlappingAgreements(dataset)) {//getAgreementAlternatives(g, null)) 
 			System.err.println(meas + "(V,V) =" +meas.getAgreement(groundTruth, groundTruth));
 			System.err.println(meas + "(U1,V) =" +meas.getAgreement(p1, groundTruth));
 			System.err.println(meas + "(U2,V) =" + (meas.getAgreement(p2, groundTruth)));
@@ -208,13 +215,15 @@ public class test {
 //		{3, 4 ,15 ,16, 29, 30 ,31 ,32 }});
 
 		
-		for (ClusteringAgreement<Integer> meas : MeasuresUtil.<Integer>getAllAgreementImplementations()) {
+		for (ClusteringAgreement<Integer> meas :MeasuresUtil.<Integer,Integer>getAgreements(null)){// MeasuresUtil.<Integer>getAllAgreementImplementations()) {
 //			System.err.println(meas + "(t,t) =" +meas.getAgreement(t, t));
 //			System.err.println(meas + "(V,V) =" +meas.getAgreement(groundTruth, groundTruth));
 			System.err.println(meas + "(U1,V) =" +meas.getAgreement(p1, groundTruth));
 			System.err.println(meas + "(U2,V) =" + (meas.getAgreement(p2, groundTruth)));
 //			System.err.println();
 		}
+		
+		System.err.println("_________________________________________________________________________");
 		
 		Graph<Integer, Integer> g =  new SparseGraph<>() ;
 		int c=0;
@@ -270,10 +279,29 @@ public class test {
 		ClusteringAgreement<Integer> onmi = new NMI_Overlapping_MacDaid<>();
 		System.err.println("-- "+onmi.getAgreement(U1, V));
 		System.err.println("-- "+onmi.getAgreement(U2, V));
-////		ClusteringAgreement<Integer> onmi2 = new NMI_Overlapping_LFR<>();
-////		System.err.println("-- "+onmi2.getAgreement(U1, V));
-////		System.err.println("-- "+onmi2.getAgreement(U2, V));
+		ClusteringAgreement<Integer> onmi2 = new NMI_Overlapping_LFR<>();
+		System.err.println("-- "+onmi2.getAgreement(U1, V));
+		System.err.println("-- "+onmi2.getAgreement(U2, V));
 //		
+		
+		Vector<ClusteringAgreement<Integer>> measures = new Vector<>(); 
+//		measures.add(new GraphAGAM<Integer,Integer>(null,null,Type.X2,ExternalOverlap.Nodes ,AdjustionMethod.ARI_ADJUSTED));
+//		measures.add(new AlgebricClusteringAgreement<Integer>(AType.COMEMEBR_RI, true, true , true));
+//		measures.add(new NMI<Integer>());
+//		
+//		measures.add(new GraphAGAM<Integer,Integer>(null,null,Type.VI,ExternalOverlap.Nodes ,AdjustionMethod.ARI_ADJUSTED));
+//		measures.add(new AlgebricClusteringAgreement<Integer>(AType.OVERLAP_VI, true, true , true));
+//		measures.add(new AlgebricClusteringAgreement<Integer>(AType.NMI, false, true ,true));
+//		measures.add(new OCI<Integer>(OCI.xlogx));
+//		
+
+		for (ClusteringAgreement<Integer> meas :MeasuresUtil.<Integer,Integer>getAgreements(null)){// MeasuresUtil.<Integer>getAllAgreementImplementations()) {
+//			System.err.println(meas + "(t,t) =" +meas.getAgreement(t, t));
+//			System.err.println(meas + "(V,V) =" +meas.getAgreement(groundTruth, groundTruth));
+			System.err.println(meas + "(U1,V) =" +meas.getAgreement(V, U1));
+			System.err.println(meas + "(U2,V) =" + (meas.getAgreement(V, U2)));
+//			System.err.println();
+		}
 		
 		
 	}
@@ -289,9 +317,9 @@ public class test {
 	
 //		testExamples();
 //		testAltenativeImplementations();
-		graphExample();
+//		graphExample();
 		omegaExample();
-		setmatching_example();
+//		setmatching_example();
 	}
 
 

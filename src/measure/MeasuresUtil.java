@@ -29,6 +29,7 @@ import measure.cluster.agreement.partitioning.generalization.GraphAGAM.ExternalO
 import measure.cluster.distance.AlgebricClusteringAgreement;
 import measure.cluster.distance.AlgebricClusteringAgreement.AType;
 import measure.cluster.distance.AlgebricClusteringAgreement.StructureType;
+import measure.cluster.overlapping.OCI;
 import measure.criteria.CIndex;
 import measure.criteria.DaviesBouldin;
 import measure.criteria.Dunn;
@@ -303,6 +304,62 @@ public class MeasuresUtil {
 	}
 	
 	
+	public static<V,E> Vector< ClusteringAgreement<V>> getAgreements(GraphDataSet<V, E> dataset){//GraphDataSet<V, E> dataset, 
+		Vector<ClusteringAgreement<V>> measures = new Vector<>(); 
+		Vector< AlgebricClusteringAgreement<V>> algebricMeasures = new Vector< AlgebricClusteringAgreement<V>>();
+		// RI & ARI
+		measures.add(new GraphAGAM<V,E>(null,null,Type.X2,ExternalOverlap.Nodes ,AdjustionMethod.ARI_ADJUSTED));
+		measures.add(new AlgebricClusteringAgreement<V>(AType.OVERLAP_RI, true, true , true));
+		algebricMeasures.add(new AlgebricClusteringAgreement<V>(AType.COMEMEBR_RI, true, true , true));
+		measures.add(new OCI<V>(OCI.x2));
+		
+		// VI & NMI_sum
+		measures.add(new NMI<V>());
+		measures.add(new GraphAGAM<V,E>(null,null,Type.VI,ExternalOverlap.Nodes ,AdjustionMethod.ARI_ADJUSTED));
+		measures.add(new AlgebricClusteringAgreement<V>(AType.OVERLAP_VI, true, true , true));
+		measures.add(new AlgebricClusteringAgreement<V>(AType.NMI, false, true ,true));
+		measures.add(new OCI<V>(OCI.xlogx));
+
+//		measures.add(new NMI_Overlapping_LFR<V>());
+//		measures.add(new NMI_Overlapping_MacDaid<V>());
+//		measures.add(new AlgebricClusteringAgreement<V>(AType.OMEGA, true, true, false ));
+		
+		measures.addAll(0,algebricMeasures);
+		if(dataset==null) dataset = new GraphDataSet<V, E>("Null");
+//			return measures;
+		
+//			measures.add(new GraphAGAM<V,E>(dataset.graph, dataset.getWeightsTransformer(),Type.X2,ExternalOverlap.NodesWeightedByDegree , AdjustionMethod.ARI_ADJUSTED));
+//			measures.add(new GraphAGAM<V,E>(dataset.graph, dataset.getWeightsTransformer(),Type.X2,ExternalOverlap.Edges , AdjustionMethod.ARI_ADJUSTED));
+//			for (AlgebricClusteringAgreement<V> algebricClusteringAgreement :algebricMeasures) 
+//				measures.add(algebricClusteringAgreement.new StructureBasedClusteringAgreement<E>(StructureType.DEP_TRANS,dataset.graph, dataset.getWeightsTransformer()));
+//			for (AlgebricClusteringAgreement<V> algebricClusteringAgreement :algebricMeasures) 
+//				measures.add(algebricClusteringAgreement.new StructureBasedClusteringAgreement<E>(StructureType.DEP_SUM,dataset.graph, dataset.getWeightsTransformer()));
+
+		return measures;
+	}
+	
+
+	
+	public static<V,E> Vector< ClusteringAgreement<V>> getOverlappingAgreements(GraphDataSet<V, E> dataset){//GraphDataSet<V, E> dataset, 
+		Vector<ClusteringAgreement<V>> measures = new Vector<>(); 
+		Vector< AlgebricClusteringAgreement<V>> algebricMeasures = new Vector< AlgebricClusteringAgreement<V>>();
+		// RI & ARI
+		measures.add(new AlgebricClusteringAgreement<V>(AType.COMEMEBR_RI, true, true , true));
+		measures.add(new OCI<V>(OCI.x2));
+		
+		// VI & NMI_sum
+		measures.add(new OCI<V>(OCI.xlogx));
+
+		measures.add(new NMI_Overlapping_LFR<V>());
+		measures.add(new NMI_Overlapping_MacDaid<V>());
+		measures.add(new AlgebricClusteringAgreement<V>(AType.OMEGA, true, true, false ));
+		
+		measures.addAll(0,algebricMeasures);
+
+		return measures;
+	}
+	
+	
 	private static<V> Vector< ClusteringAgreement<V>> getClassicAgreements(){
 		Vector< ClusteringAgreement<V>> res = new Vector< ClusteringAgreement<V>>();
 		res.add(new Jaccard<V>());
@@ -403,17 +460,17 @@ public class MeasuresUtil {
 	
 	public static<V> Vector< ClusteringAgreement<V>> getAllAgreementImplementations(){
 		Vector< ClusteringAgreement<V>> res = new Vector< ClusteringAgreement<V>>();
-		res.add(new Jaccard<V>());
-		res.add(new FMeasure<V>());
+//		res.add(new Jaccard<V>());
+//		res.add(new FMeasure<V>());
 		//ADD THIS \sum_{ij} [eij - dj.dj/2E]
 
-		res.add(new GAM<V>(Type.RI));
-		res.add(new AlgebricClusteringAgreement<V>(AType.OVERLAP_RI, false, true , false));
-		res.add(new AlgebricClusteringAgreement<V>(AType.COMEMEBR_RI, false, true , false));
-		res.add(new AlgebricClusteringAgreement<V>(AType.OMEGA, false, true, false ));
-		res.add(new AlgebricClusteringAgreement<V>(AType.OVERLAP_RI, false, true , true));
-		res.add(new AlgebricClusteringAgreement<V>(AType.COMEMEBR_RI, false, true , true));
-		res.add(new AlgebricClusteringAgreement<V>(AType.OMEGA, false, true, true ));
+//		res.add(new GAM<V>(Type.RI));
+//		res.add(new AlgebricClusteringAgreement<V>(AType.OVERLAP_RI, false, true , false));
+//		res.add(new AlgebricClusteringAgreement<V>(AType.COMEMEBR_RI, false, true , false));
+//		res.add(new AlgebricClusteringAgreement<V>(AType.OMEGA, false, true, false ));
+//		res.add(new AlgebricClusteringAgreement<V>(AType.OVERLAP_RI, false, true , true));
+//		res.add(new AlgebricClusteringAgreement<V>(AType.COMEMEBR_RI, false, true , true));
+//		res.add(new AlgebricClusteringAgreement<V>(AType.OMEGA, false, true, true ));
 
 		res.add(new ARI<V>());
 		res.add(new AlgebricClusteringAgreement<V>(AType.OVERLAP_RI, true, true , false));
@@ -425,22 +482,22 @@ public class MeasuresUtil {
 		res.add(new AlgebricClusteringAgreement<V>(AType.COMEMEBR_RI, true, true , true));
 		res.add(new AlgebricClusteringAgreement<V>(AType.OMEGA, true, true, true));
 
-		res.add(new VI<V>());
-		res.add(new AlgebricClusteringAgreement<V>(AType.OVERLAP_VI, false, true , true));
-		res.add(new AlgebricClusteringAgreement<V>(AType.NMI, false, false ));
+//		res.add(new VI<V>());
+//		res.add(new AlgebricClusteringAgreement<V>(AType.OVERLAP_VI, false, true , true));
+//		res.add(new AlgebricClusteringAgreement<V>(AType.NMI, false, false ));
 
 		res.add(new NMI<V>());
 		res.add(new AlgebricClusteringAgreement<V>(AType.OVERLAP_VI, true, false , true));
 		res.add(new AlgebricClusteringAgreement<V>(AType.NMI, false, true ));
 
-		res.add(new NMI<V>(NMI.Mode.SQRT));
+//		res.add(new NMI<V>(NMI.Mode.SQRT));
 		res.add(new AlgebricClusteringAgreement<V>(AType.NMI, true, false));
 //		res.add(new AMI<V>());
 		
 		
-		res.add(new AlgebricClusteringAgreement<V>(AType.ALT_NORM));
-		res.add(new AlgebricClusteringAgreement<V>(AType.ALT_TRACE,false));
-		res.add(new AlgebricClusteringAgreement<V>(AType.ALT_TRACE,true));
+//		res.add(new AlgebricClusteringAgreement<V>(AType.ALT_NORM));
+//		res.add(new AlgebricClusteringAgreement<V>(AType.ALT_TRACE,false));
+//		res.add(new AlgebricClusteringAgreement<V>(AType.ALT_TRACE,true));
 		
 		return res;
 	}

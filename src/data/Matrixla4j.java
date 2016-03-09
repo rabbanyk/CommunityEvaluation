@@ -81,7 +81,7 @@ public class Matrixla4j extends CRSMatrix implements AbstractMatrix{
                 if (i==j) res[7]+=tmp;
             }
         }
-        System.err.println("\t\t      >>  -- su2(U): " + (System.currentTimeMillis() - startTime) +" milisecond");
+//        System.err.println("\t\t      >>  -- su2(U): " + (System.currentTimeMillis() - startTime) +" milisecond");
 		startTime = System.currentTimeMillis();
         Set<Integer> nzRowsB = new HashSet<Integer>();
         Iterator<Integer> itB = (B).iteratorOfNonZeroRows();
@@ -100,7 +100,7 @@ public class Matrixla4j extends CRSMatrix implements AbstractMatrix{
                 if (i==j) res[8]+=tmp;
             }
         }
-        System.err.println("\t\t      >>  -- su2(V): " + (System.currentTimeMillis() - startTime) +" milisecond");
+//        System.err.println("\t\t      >>  -- su2(V): " + (System.currentTimeMillis() - startTime) +" milisecond");
 		startTime = System.currentTimeMillis();
         
 		nzRows.retainAll(nzRowsB);
@@ -117,7 +117,7 @@ public class Matrixla4j extends CRSMatrix implements AbstractMatrix{
 //                res[13] += tmp*log(tmp2)+tmp2*log(tmp);
         	}
         }
-        System.err.println("\t\t      >>  -- su2(U.V): " + (System.currentTimeMillis() - startTime) +" milisecond");
+//        System.err.println("\t\t      >>  -- su2(U.V): " + (System.currentTimeMillis() - startTime) +" milisecond");
 
         res[6] = res[2]+res[5] - 2*res[9] ;
 //        res[12] = res[10]+res[11] - res[13] ;

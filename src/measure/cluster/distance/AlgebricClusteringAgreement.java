@@ -168,18 +168,18 @@ public class AlgebricClusteringAgreement<T> extends ClusteringAgreement<T>{
 				if (N!= null){
 					long startTime = System.currentTimeMillis();
 					AbstractMatrix NU = N.transposeProduct(U);
-					System.err.println("\t\t      >>  -- N.transposeProduct(U) finished in: " + (System.currentTimeMillis() - startTime) +" milisecond");
-					System.err.println("\t\t      >>  -- res in: " + NU.getNonZeroCount() +" non zeros in a " + NU.rows()+"x"+NU.columns()+" matrix "+ (NU.getNonZeroCount()*100.0) / (NU.rows()*NU.columns()) + "%");
+//					System.err.println("\t\t      >>  -- N.transposeProduct(U) finished in: " + (System.currentTimeMillis() - startTime) +" milisecond");
+//					System.err.println("\t\t      >>  -- res in: " + NU.getNonZeroCount() +" non zeros in a " + NU.rows()+"x"+NU.columns()+" matrix "+ (NU.getNonZeroCount()*100.0) / (NU.rows()*NU.columns()) + "%");
 
 					startTime = System.currentTimeMillis();
 					AbstractMatrix NV = N.transposeProduct(V);
-					System.err.println("\t\t      >>  -- N.transposeProduct(V) finished in: " + (System.currentTimeMillis() - startTime) +" milisecond");
-					System.err.println("\t\t      >>  -- res in: " + NV.getNonZeroCount() +" non zeros in a " + NV.rows()+"x"+NV.columns()+" matrix "+ (NV.getNonZeroCount()*100.0)  / (NV.rows()*NV.columns()) + "%");
+//					System.err.println("\t\t      >>  -- N.transposeProduct(V) finished in: " + (System.currentTimeMillis() - startTime) +" milisecond");
+//					System.err.println("\t\t      >>  -- res in: " + NV.getNonZeroCount() +" non zeros in a " + NV.rows()+"x"+NV.columns()+" matrix "+ (NV.getNonZeroCount()*100.0)  / (NV.rows()*NV.columns()) + "%");
 
 					startTime = System.currentTimeMillis();
 					Pair<String[], double[]> dTran= 
 							AlgebricClusteringDistance.getAll(NU, NV, same_node);
-					System.err.println("\t\t      >>  -- TrasposeAgg finished in: " + (System.currentTimeMillis() - startTime) +" milisecond");
+//					System.err.println("\t\t      >>  -- TrasposeAgg finished in: " + (System.currentTimeMillis() - startTime) +" milisecond");
 	
 					addAll( dTran, measures, names,  "C_{\\bot}",same_node);
 				}else {

@@ -67,25 +67,25 @@ public class AlgebricClusteringDistance {
 
 		}
 	}
-	static double log(double x){
-		return x==0?0:Math.log(x+1); 
-	}
-	static double invxlogx(double y){
-		//https://books.google.ca/books?id=1aAOdzK3FegC&pg=PA307&lpg=PA307&dq=inverse+of+x+log+x&source=bl&ots=3jOiG7Bsng&sig=7y3PNLHe8PpzIIdtCMgCxOViwec&hl=en&sa=X&ei=diDIVPrUBIOxyQSorIKwAw&ved=0CB0Q6AEwAA#v=onepage&q=inverse%20of%20x%20log%20x&f=false
-		return y/dev_LambertW.branch0(y) -1;
-	}
-	static Transformer<Pair<Double,Double>, Double> x2 = new Transformer<Pair<Double,Double>, Double>() {
-		@Override
-		public Double transform(Pair<Double, Double> input) {
-			return input.first*input.second;
-		}
-	};
-	static Transformer<Pair<Double,Double>, Double> xlogx = new Transformer<Pair<Double,Double>, Double>() {
-		@Override
-		public Double transform(Pair<Double, Double> input) {
-			return input.first*Math.log(input.second);
-		}
-	};
+//	static double log(double x){
+//		return x==0?0:Math.log(x+1); 
+//	}
+//	static double invxlogx(double y){
+//		//https://books.google.ca/books?id=1aAOdzK3FegC&pg=PA307&lpg=PA307&dq=inverse+of+x+log+x&source=bl&ots=3jOiG7Bsng&sig=7y3PNLHe8PpzIIdtCMgCxOViwec&hl=en&sa=X&ei=diDIVPrUBIOxyQSorIKwAw&ved=0CB0Q6AEwAA#v=onepage&q=inverse%20of%20x%20log%20x&f=false
+//		return y/dev_LambertW.branch0(y) -1;
+//	}
+//	static Transformer<Pair<Double,Double>, Double> x2 = new Transformer<Pair<Double,Double>, Double>() {
+//		@Override
+//		public Double transform(Pair<Double, Double> input) {
+//			return input.first*input.second;
+//		}
+//	};
+//	static Transformer<Pair<Double,Double>, Double> xlogx = new Transformer<Pair<Double,Double>, Double>() {
+//		@Override
+//		public Double transform(Pair<Double, Double> input) {
+//			return input.first*Math.log(input.second);
+//		}
+//	};
 	
 	
 	public static Pair<String[],double[]> getAll(AbstractMatrix U, AbstractMatrix V, boolean same_nodes ){
@@ -239,6 +239,8 @@ public class AlgebricClusteringDistance {
         double sV = CV.powSum(2);
         double sUV = (CU.subtract(CV)).powSum(2);
 //        System.err.println(ssU+" "+ssV+" "+m+" "+ sU+" "+ sV+" "+ sUV);
+       
+//		System.err.println("O(U, V): "+ (sU+sV-sUV)/2 +"  O(U, U) " + sU + " O(V, V) "+sV +"  Euv: "+ (ssU*ssV)/(pairCount));
 
         D res = new D();
 	    res.raw = sUV;

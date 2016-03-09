@@ -202,7 +202,7 @@ public class ExternalExperiment {
 
 		Vector<GraphDataSet<Integer, Integer>> datasets = new Vector<GraphDataSet<Integer,Integer>>();
 // ---------------  TEST -------------------------
-//		datasets.add(DatasetUtils.<Integer,Integer>loadClassic(ClassicDataset.wkarate));
+		datasets.add(DatasetUtils.<Integer,Integer>loadClassic(ClassicDataset.wkarate));
 
 // ---------------  EXP 1 -------------------------
 //		for (GraphDataSet<Integer, Integer> dataset: DatasetUtils.<Integer,Integer>loadAll("../Datasets/classics/")){
@@ -212,12 +212,12 @@ public class ExternalExperiment {
 //			}
 //		}
 // ---------------  EXP 2 -------------------------
-		for (GraphDataSet<Integer, Integer> dataset: DatasetUtils.<Integer,Integer>loadAllDataSets("../Datasets/SNAP/facebook/")){
-			if (dataset.graph.getEdgeCount()<20000){
-				dataset.printStats();
-				datasets.add(dataset);
-			}
-		}
+//		for (GraphDataSet<Integer, Integer> dataset: DatasetUtils.<Integer,Integer>loadAllDataSets("../Datasets/SNAP/facebook/")){
+//			if (dataset.graph.getEdgeCount()<20000){
+//				dataset.printStats();
+//				datasets.add(dataset);
+//			}
+//		}
 //		
 //		for (GraphDataSet<Integer, Integer> dataset: DatasetUtils.<Integer,Integer>loadAll("../Datasets/Biological/linkGroup/")){
 //				{dataset.printStats();

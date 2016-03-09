@@ -47,6 +47,8 @@ public class AGAM<V> extends GAM<V>{
 			sU+= phi.transform(margU[j]);
 		}
 		
+	
+		
 		double res = sU+sV-2*I;
 		double dom = sU+sV-2*E;
 		

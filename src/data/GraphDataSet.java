@@ -89,7 +89,7 @@ public class GraphDataSet<V,E> {
 			Grouping<V> res = new Grouping<>();
 			for (V v : attributes.keySet()) {
 				if(attributes.get(v).containsKey(attribute)){
-					System.err.println(attributes.get(v));
+				//	System.err.println(attributes.get(v));
 					for (Object attValue: attributes.get(v).get(attribute)){
 						Integer gId = groupId.transform(attValue);
 						if (gId != null){ //missing
